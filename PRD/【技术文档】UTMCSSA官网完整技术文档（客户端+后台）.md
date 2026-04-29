@@ -389,7 +389,9 @@ export default config
     
 - 核心业务模块合并前必须触发至少 1 次 Code Review，验证代码规范与构建状态。
 
-- **Commit Message 规范：** 必须使用中文，采用 `<类型>: <描述>` 的格式（如：`📝 文档: 更新 PRD 规范`）。
+- **Commit Message 规范：** 建议参照 Conventional Commits 规范，采用 `<type>: <short summary>` 的格式。
+  - `type` 为英文，如：`feat` (新功能), `fix` (修bug), `refactor` (重构), `docs` (文档), `test` (测试), `chore` (杂项), `style` (格式)。
+  - `short summary` **必须使用中文**简短描述内容（如：`feat: 完成首页轮播图组件`）。
 
 - **Pull Request 规范：** 必须使用中文，描述区必须清晰写明**背景目的**、**修改内容**和**测试情况**。
     
