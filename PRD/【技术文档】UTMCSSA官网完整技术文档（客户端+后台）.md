@@ -377,16 +377,21 @@ export default config
     
 - `main` 分支作为唯一的生产级代码来源。
     
-- 特性开发严格采用 `feature/{模块名称}` 分支模型。
-    
+- 特性开发严格采用 `feature/{模块名称}` 或 `feature-姓名-模块` 的分支模型。
 
-### 8.2 PR 与 Code Review
+- **文档更新机制：** 所有和文档相关的修改必须统一提交到 `docs` 分支（基于 `main`）。
 
-- 严禁本地直推 (Direct Push) `main` 分支。
+### 8.2 Git Commit 与 Pull Request 规范
+
+- 严禁本地直推 (Direct Push) `main` 或 `dev` 分支。
     
 - 必须通过 Pull Request (PR) 合并代码。
     
 - 核心业务模块合并前必须触发至少 1 次 Code Review，验证代码规范与构建状态。
+
+- **Commit Message 规范：** 必须使用中文，采用 `<类型>: <描述>` 的格式（如：`📝 文档: 更新 PRD 规范`）。
+
+- **Pull Request 规范：** 必须使用中文，描述区必须清晰写明**背景目的**、**修改内容**和**测试情况**。
     
 
 ### 8.3 模块化开发拆分原则
