@@ -1,0 +1,50 @@
+/*
+ * ============================================================
+ * FILE: client/app/globals.css
+ * ============================================================
+ *
+ * 【作用】
+ * 全站唯一的全局样式入口，通过 Tailwind CSS 指令注入 base / components /
+ * utilities 三层，并在 @layer base 中声明所有设计系统的 CSS Custom Properties
+ * (Design Token)。禁止在任何业务组件中使用 Hex 硬编码色值。
+ *
+ * 【依赖关系】
+ * Imported by:
+ *   - app/layout.tsx : 在根 Layout 中一次性导入，全局生效
+ * References:
+ *   - tailwind.config.ts : 变量名与 Tailwind 扩展色名必须一一对应
+ *
+ * 【定义内容】
+ *
+ * @tailwind base / components / utilities  — Tailwind 三层注入
+ *
+ * @layer base :root {
+ *   客户端前台品牌色系（米白背景 + 深红主色）：
+ *   --background      : 36 25% 97%    (#FAF8F5 米白，全局 body 背景)
+ *   --foreground      : 0 8% 15%      (#2A2424 深棕，主正文色)
+ *   --card            : 0 0% 100%     (#FFFFFF 纯白，卡片/弹窗容器)
+ *   --card-foreground : 0 8% 15%
+ *   --primary         : 358 74% 42%   (#BA1C21 品牌主红，CTA/导航 Active)
+ *   --primary-foreground : 0 0% 100%  (白色，主色上的文字)
+ *   --secondary       : 288 33% 95%   (#F5EEF8 淡紫，标签/次级区块背景)
+ *   --secondary-foreground : 358 74% 42%
+ *   --muted           : 36 20% 92%    (副文本背景)
+ *   --muted-foreground : 0 4% 44%     (#736B6B 灰棕，日期/说明文字)
+ *   --accent          : 358 74% 94%   (轻主色背景，hover 高亮区域)
+ *   --accent-foreground : 358 74% 42%
+ *   --destructive     : 0 84% 60%     (危险/错误，表单校验红)
+ *   --destructive-foreground : 0 0% 100%
+ *   --border          : 36 15% 88%    (分割线、输入框边框)
+ *   --input           : 36 15% 88%
+ *   --ring            : 358 74% 42%   (focus ring 颜色)
+ *   --radius          : 0.5rem        (全局圆角基准)
+ * }
+ *
+ * @layer base * { @apply border-border }  — 所有元素默认边框色
+ * @layer base body { @apply bg-background text-foreground }  — 基础颜色绑定
+ *
+ * 【注意事项】
+ * - 所有颜色值使用 HSL 三元组（无 hsl() 包裹），与 Tailwind 颜色系统的
+ *   `hsl(var(--xxx))` 语法兼容
+ * - 禁止在此文件以外定义全局 CSS 规则；组件级样式一律用 Tailwind 类名
+ */
