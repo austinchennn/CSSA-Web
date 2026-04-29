@@ -1,0 +1,49 @@
+/*
+ * ============================================================
+ * FILE: admin-frontend/app/globals.css
+ * ============================================================
+ *
+ * 【作用】
+ * 后台前端专属的全局样式。与客户端前台采用不同的色彩系统：
+ * 使用深色侧边栏 + 浅灰白内容区，突出数据表格的可读性，
+ * 并引入成功/警告/危险三色状态指示系统。
+ *
+ * 【依赖关系】
+ * Imported by:
+ *   - admin-frontend/app/layout.tsx : 根 Layout 一次性导入
+ *
+ * 【定义内容】
+ * @tailwind base / components / utilities
+ *
+ * @layer base :root {
+ *   基础色：
+ *   --background      : 210 40% 98%     (浅灰白，内容区背景)
+ *   --foreground      : 222.2 84% 4.9%  (深色，正文)
+ *
+ *   左侧边栏专属色（深色沉稳风格）：
+ *   --sidebar-bg      : 222.2 84% 4.9%  (深海军蓝，侧边栏背景)
+ *   --sidebar-fg      : 210 40% 98%     (浅色，侧边栏文字)
+ *   --sidebar-hover   : 217.2 32.6% 17.5% (悬浮高亮背景)
+ *   --sidebar-active  : 210 40% 98%     (激活条目背景)
+ *   --sidebar-active-fg : 222.2 84% 4.9% (激活条目文字)
+ *
+ *   数据区域：
+ *   --card            : 0 0% 100%
+ *   --card-foreground : 222.2 84% 4.9%
+ *   --border          : 214.3 31.8% 91.4%
+ *
+ *   主题色（与前台保持一致）：
+ *   --primary         : 358 74% 42%     (#BA1C21 品牌红)
+ *   --primary-foreground : 210 40% 98%
+ *
+ *   状态指示色（后台必备）：
+ *   --success         : 142.1 76.2% 36.3%  (绿色，报名已确认)
+ *   --success-foreground : 355.7 100% 97.3%
+ *   --warning         : 38 92% 50%         (橙黄，待处理/Upcoming)
+ *   --warning-foreground : 48 96% 89%
+ *   --destructive     : 0 84.2% 60.2%      (红色，删除/已关闭)
+ *   --destructive-foreground : 210 40% 98%
+ *
+ *   --radius: 0.5rem
+ * }
+ */

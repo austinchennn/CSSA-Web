@@ -1,0 +1,40 @@
+{
+  "_comment": "客户端前端依赖配置。所有版本号为推荐版本，实际安装时以最新稳定版为准。",
+  "_dependencies_explanation": {
+    "next": "核心框架，App Router + ISR",
+    "react": "UI 框架",
+    "react-dom": "DOM 渲染",
+    "typescript": "类型安全开发语言",
+    "tailwindcss": "原子化 CSS 框架",
+    "tailwindcss-animate": "Tailwind 动画插件，shadcn/ui 依赖",
+    "class-variance-authority": "组件变体 className 管理（shadcn/ui 依赖）",
+    "clsx": "条件 className 合并",
+    "tailwind-merge": "Tailwind 类名冲突解决",
+    "@radix-ui/react-slot": "Radix Slot，Button asChild 支持",
+    "@radix-ui/react-select": "Radix Select，无障碍下拉组件",
+    "@radix-ui/react-dialog": "Radix Dialog，模态框基础组件",
+    "framer-motion": "动效引擎：页面切换、视差滚动、Timeline 进场",
+    "zustand": "轻量全局状态管理",
+    "lucide-react": "图标库（shadcn/ui 标准配套）"
+  },
+  "_devDependencies_explanation": {
+    "@types/node": "Node.js 类型",
+    "@types/react": "React 类型",
+    "@types/react-dom": "ReactDOM 类型",
+    "eslint": "代码规范检查",
+    "eslint-config-next": "Next.js 官方 ESLint 配置",
+    "prettier": "代码格式化",
+    "prettier-plugin-tailwindcss": "Tailwind 类名自动排序",
+    "husky": "Git Hooks 工具",
+    "lint-staged": "只对暂存文件执行 lint"
+  },
+  "_scripts_explanation": {
+    "dev": "启动开发服务器 (port 3000)",
+    "build": "生产构建",
+    "start": "启动生产服务器",
+    "lint": "ESLint 检查",
+    "type-check": "TypeScript 类型检查（不输出文件）",
+    "format": "Prettier 格式化所有文件",
+    "prepare": "安装 Husky hooks"
+  }
+}

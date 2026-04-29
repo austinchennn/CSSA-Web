@@ -1,0 +1,89 @@
+# ============================================================
+# FILE: backend/strapi/src/extensions/graphql/schema.graphql
+# ============================================================
+#
+# 【作用】
+# GraphQL Schema 扩展文件。Strapi GraphQL 插件自动根据所有内容类型的
+# schema.json 生成基础 GraphQL Schema（类型、Query、Mutation）。
+# 此文件用于添加 Strapi 自动生成之外的自定义类型、Query 或 Mutation。
+#
+# 【依赖关系】
+# Used by:
+#   - Strapi GraphQL 插件在启动时合并此文件与自动生成的 Schema
+#   - client/lib/graphql/queries/*.ts 的所有 gqlFetch 调用
+#   - client/lib/graphql/mutations/*.ts 的 submitRegistration 调用
+#
+# 【Strapi 自动生成的主要类型（无需在此重复定义）】
+#
+# type SiteConfig {
+#   id: ID!
+#   key: String!
+#   value: JSON
+#   description: String
+# }
+#
+# type Department {
+#   id: ID!
+#   name: String!
+#   leaderName: String!
+#   introduction: String
+#   members: [Member]
+# }
+#
+# type Member {
+#   id: ID!
+#   name: String!
+#   title: String!
+#   photo: UploadFile
+#   order: Int
+#   department: Department
+# }
+#
+# type Event {
+#   id: ID!
+#   title: String!
+#   startTime: DateTime!
+#   capacity: Int
+#   formSchema: JSON!         ← JSON 字段，前端解析为 FormField[]
+#   status: ENUM_EVENT_STATUS!
+# }
+#
+# type PastEvent {
+#   id: ID!
+#   eventName: String!
+#   introduction: String!
+#   photo: UploadFile!        ← 强制非空，schema.json 中 required: true
+#   eventDate: Date!
+# }
+#
+# type Registration {
+#   id: ID!
+#   event: Event
+#   userInfo: JSON!
+#   status: ENUM_REGISTRATION_STATUS!
+# }
+#
+# 【自定义扩展（在此文件中定义）】
+#
+# 当前无需自定义扩展，Strapi 自动生成的 Schema 已满足所有业务需求。
+# 如未来需要添加聚合 Query（如 registrationCount），在此文件扩展：
+#
+# extend type Query {
+#   registrationCountByEvent(eventId: ID!): Int
+# }
+#
+# 【使用示例（前端 GraphQL Query）】
+# query GetAllMembers {
+#   members(sort: "order:desc", populate: "*") {
+#     data {
+#       id
+#       attributes {
+#         name
+#         title
+#         order
+#         photo { data { attributes { url alternativeText } } }
+#         department { data { id attributes { name introduction } } }
+#       }
+#     }
+#   }
+# }
