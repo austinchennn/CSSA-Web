@@ -1,0 +1,50 @@
+# ============================================================
+# 本地开发环境：PostgreSQL + Redis
+# 使用方式：
+#   启动：docker-compose up -d
+#   停止：docker-compose down
+#   清数据重启：docker-compose down -v && docker-compose up -d
+# ============================================================
+
+version: '3.8'
+
+services:
+
+  # ── PostgreSQL 数据库 ──────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine        # 使用轻量 Alpine 版本
+    container_name: cssa_postgres
+    restart: unless-stopped          # 容器崩溃自动重启，手动 down 不重启
+    environment:
+      POSTGRES_DB: cssa_web_dev      # 开发用数据库名
+      POSTGRES_USER: postgres        # 默认用户名
+      POSTGRES_PASSWORD: postgres    # 本地开发密码（生产环境用 secret）
+    ports:
+      - '5432:5432'                  # 暴露到宿主机，Strapi 通过 localhost:5432 连接
+    volumes:
+      - postgres_data:/var/lib/postgresql/data   # 持久化数据，重启不丢数据
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis 缓存 / 队列 ──────────────────────────────────────
+  redis:
+    image: redis:7-alpine            # BullMQ 任务队列依赖 Redis
+    container_name: cssa_redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'                  # NestJS 微服务通过 localhost:6379 连接
+    volumes:
+      - redis_data:/data             # 持久化 Redis 数据
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# ── 持久化 Volume ──────────────────────────────────────────
+volumes:
+  postgres_data:   # PostgreSQL 数据持久化
+  redis_data:      # Redis 数据持久化

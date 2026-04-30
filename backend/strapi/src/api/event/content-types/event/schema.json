@@ -28,5 +28,61 @@
         "description": "反向关联：该活动的所有报名记录"
       }
     }
+  },
+
+  "kind": "collectionType",
+  "collectionName": "events",
+  "info": {
+    "singularName": "event",
+    "pluralName": "events",
+    "displayName": "活动 Event",
+    "description": "当前及可报名活动。form_schema 是核心字段，驱动前台表单渲染和后台表头生成。"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "start_time": {
+      "type": "datetime",
+      "required": true
+    },
+    "location": {
+      "type": "string",
+      "required": false
+    },
+    "description": {
+      "type": "richtext",
+      "required": false
+    },
+    "cover_image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "capacity": {
+      "type": "integer",
+      "required": false
+    },
+    "form_schema": {
+      "type": "json",
+      "required": true
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["upcoming", "active", "closed"],
+      "default": "upcoming",
+      "required": true
+    },
+    "registrations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::registration.registration",
+      "mappedBy": "event"
+    }
   }
 }

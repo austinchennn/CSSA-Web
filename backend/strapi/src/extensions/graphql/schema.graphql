@@ -17,9 +17,13 @@
 #
 # type SiteConfig {
 #   id: ID!
-#   key: String!
-#   value: JSON
-#   description: String
+#   heroTitle: String!
+#   heroSubtitle: String
+#   contactEmail: String!
+#   instagramUrl: String
+#   wechatId: String
+#   aboutDescription: String
+#   joinUsDescription: String
 # }
 #
 # type Department {
@@ -43,8 +47,11 @@
 #   id: ID!
 #   title: String!
 #   startTime: DateTime!
+#   location: String
+#   description: String
+#   coverImage: UploadFile
 #   capacity: Int
-#   formSchema: JSON!         ← JSON 字段，前端解析为 FormField[]
+#   formSchema: JSON!         # JSON 字段，前端解析为 FormField[]
 #   status: ENUM_EVENT_STATUS!
 # }
 #
@@ -52,7 +59,7 @@
 #   id: ID!
 #   eventName: String!
 #   introduction: String!
-#   photo: UploadFile!        ← 强制非空，schema.json 中 required: true
+#   photo: UploadFile!        # 强制非空，schema.json 中 required: true
 #   eventDate: Date!
 # }
 #
@@ -62,27 +69,71 @@
 #   userInfo: JSON!
 #   status: ENUM_REGISTRATION_STATUS!
 # }
-#
-# 【自定义扩展（在此文件中定义）】
-#
-# 当前无需自定义扩展，Strapi 自动生成的 Schema 已满足所有业务需求。
-# 如未来需要添加聚合 Query（如 registrationCount），在此文件扩展：
-#
-# extend type Query {
-#   registrationCountByEvent(eventId: ID!): Int
+
+# ── 自定义扩展 ────────────────────────────────────────────────────────────────
+
+# 报名人数统计：后台活动列表页用于显示"已报名 X / 上限 Y"
+extend type Query {
+  # 查询指定活动的当前报名人数（公开接口，无需鉴权）
+  registrationCountByEvent(eventId: ID!): Int
+}
+
+# ── 前端 GraphQL 查询示例（供 Emilia 参考）────────────────────────────────────
+
+# 查询全站配置（首页 Hero、联系信息等）
+# query GetSiteConfig {
+#   siteConfig {
+#     data {
+#       attributes {
+#         heroTitle heroSubtitle contactEmail
+#         instagramUrl wechatId joinUsDescription
+#       }
+#     }
+#   }
 # }
-#
-# 【使用示例（前端 GraphQL Query）】
-# query GetAllMembers {
-#   members(sort: "order:desc", populate: "*") {
+
+# 查询所有部门及其成员（Team 页）
+# query GetTeam {
+#   departments(sort: "name:asc", populate: "members.photo") {
 #     data {
 #       id
 #       attributes {
-#         name
-#         title
-#         order
+#         name leaderName introduction
+#         members(sort: "order:desc") {
+#           data {
+#             id
+#             attributes {
+#               name title order
+#               photo { data { attributes { url alternativeText } } }
+#             }
+#           }
+#         }
+#       }
+#     }
+#   }
+# }
+
+# 查询当前开放报名的活动（Join Us 页）
+# query GetActiveEvents {
+#   events(filters: { status: { eq: "active" } }, sort: "startTime:asc") {
+#     data {
+#       id
+#       attributes {
+#         title startTime location capacity formSchema status
+#         coverImage { data { attributes { url } } }
+#       }
+#     }
+#   }
+# }
+
+# 查询往期活动（Events 页 Timeline 区域，按日期倒序）
+# query GetPastEvents {
+#   pastEvents(sort: "eventDate:desc") {
+#     data {
+#       id
+#       attributes {
+#         eventName introduction eventDate
 #         photo { data { attributes { url alternativeText } } }
-#         department { data { id attributes { name introduction } } }
 #       }
 #     }
 #   }

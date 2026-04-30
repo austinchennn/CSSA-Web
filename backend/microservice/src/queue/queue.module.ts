@@ -10,36 +10,45 @@
  * 避免阻塞 HTTP 响应。
  *
  * 【依赖关系】
- * Imports from:
- *   - @nestjs/bullmq          : BullModule（NestJS BullMQ 集成）
- *   - src/queue/export.processor.ts : ExportProcessor
- *   - src/queue/email.processor.ts  : EmailProcessor
- *   - @nestjs/config                : ConfigService（读取 Redis 配置）
- *
  * Used by:
  *   - src/app.module.ts : 在 AppModule.imports 中注册
  *
  * 【模块配置】
- * @Module({
- *   imports: [
- *     BullModule.forRootAsync({
- *       useFactory: (config: ConfigService) => ({
- *         connection: {
- *           host: config.get('REDIS_HOST', 'localhost'),
- *           port: config.get<number>('REDIS_PORT', 6379),
- *         },
- *       }),
- *       inject: [ConfigService],
- *     }),
- *     BullModule.registerQueue(
- *       { name: 'email' },   — 邮件发送队列
- *       { name: 'export' },  — 数据导出队列
- *     ),
- *   ],
- *   providers: [ExportProcessor, EmailProcessor],
- *   exports: [BullModule],   — 导出供 RegistrationService 注入队列
- * })
- * export class QueueModule {}
+ * - email 队列：报名成功后异步发送确认邮件
+ * - export 队列：管理员导出 CSV 时异步生成文件
  */
 
-export {}
+import { Module } from '@nestjs/common'
+import { BullModule } from '@nestjs/bull'
+import { ConfigModule, ConfigService } from '@nestjs/config'
+import { EmailProcessor } from './email.processor'
+import { ExportProcessor } from './export.processor'
+
+@Module({
+  imports: [
+    // 全局配置 Redis 连接（所有队列共享同一个 Redis 实例）
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (config: ConfigService) => ({
+        redis: {
+          host: config.get<string>('REDIS_HOST', 'localhost'),
+          port: config.get<number>('REDIS_PORT', 6379),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+
+    // 注册两个独立队列
+    BullModule.registerQueue(
+      { name: 'email' },    // 邮件发送队列
+      { name: 'export' },   // 数据导出队列
+    ),
+  ],
+
+  // 挂载处理器：BullMQ 会自动将任务分配给对应的 Processor
+  providers: [EmailProcessor, ExportProcessor],
+
+  // 导出 BullModule，让 RegistrationModule 可以注入 email 队列
+  exports: [BullModule],
+})
+export class QueueModule {}

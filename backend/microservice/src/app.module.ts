@@ -13,7 +13,6 @@
  *   - @nestjs/config              : ConfigModule（全局环境变量管理）
  *   - src/registration/registration.module.ts : 报名处理模块
  *   - src/queue/queue.module.ts               : BullMQ 队列模块
- *   - src/auth/auth.module.ts                 : 鉴权模块
  *
  * Used by:
  *   - src/main.ts : bootstrap 函数的 NestFactory.create() 参数
@@ -22,7 +21,6 @@
  * @Module({
  *   imports: [
  *     ConfigModule.forRoot({ isGlobal: true }),  — 全局环境变量，无需每个模块导入
- *     AuthModule,         — 提供 JwtAuthGuard，保护管理接口
  *     RegistrationModule, — 报名提交 + Rate Limit 防刷
  *     QueueModule,        — BullMQ 队列（异步导出、邮件发送）
  *   ],
@@ -30,4 +28,21 @@
  * export class AppModule {}
  */
 
-export {}
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+import { RegistrationModule } from './registration/registration.module'
+import { QueueModule } from './queue/queue.module'
+
+@Module({
+  imports: [
+    // 全局环境变量模块：isGlobal=true 后其他模块无需重复导入
+    ConfigModule.forRoot({ isGlobal: true }),
+
+    // 报名模块：包含 Controller（Rate Limit）+ Service（业务逻辑）
+    RegistrationModule,
+
+    // 队列模块：BullMQ 异步任务（邮件通知、CSV 导出）
+    QueueModule,
+  ],
+})
+export class AppModule {}

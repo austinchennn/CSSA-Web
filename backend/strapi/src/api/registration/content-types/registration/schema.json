@@ -27,5 +27,35 @@
       }
     }
   },
-  "_security_note": "此接口的 create 操作（POST /api/registrations）是公开的（前台用户提交报名），必须经过 NestJS 微服务的 Rate Limit 拦截，防止刷单攻击。"
+  "_security_note": "此接口的 create 操作（POST /api/registrations）是公开的（前台用户提交报名），必须经过 NestJS 微服务的 Rate Limit 拦截，防止刷单攻击。",
+
+  "kind": "collectionType",
+  "collectionName": "registrations",
+  "info": {
+    "singularName": "registration",
+    "pluralName": "registrations",
+    "displayName": "报名记录 Registration",
+    "description": "活动报名记录。user_info 存储动态表单答案，结构由对应活动的 form_schema 决定。"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "event": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::event.event",
+      "inversedBy": "registrations"
+    },
+    "user_info": {
+      "type": "json",
+      "required": true
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["pending", "confirmed", "cancelled"],
+      "default": "pending",
+      "required": true
+    }
+  }
 }
