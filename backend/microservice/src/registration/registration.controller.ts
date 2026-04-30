@@ -21,26 +21,36 @@
  *
  * 【路由】
  * @Controller('registrations')
- * @Post('/')  →  POST /api/v1/registrations
+ * POST /api/v1/registrations
  *   - @UseGuards(RateLimitGuard)  — 请求进入前先经过防刷守卫
  *   - @HttpCode(201)              — 成功时返回 201
  *   - 参数：@Body() dto: CreateRegistrationDto
  *   - 调用：registrationService.create(dto)
  *   - 返回：{ success: true, id: registrationId }
  *
+ * GET /api/v1/registrations/export?eventId=xxx
+ *   - 仅后台管理员调用（由 Nginx 鉴权层保护，不挂 RateLimitGuard）
+ *   - 根据活动 form_schema 生成 CSV 列头，分页拉取所有报名记录
+ *   - 返回带 UTF-8 BOM 的 CSV 文件流（Excel 可直接打开中文不乱码）
+ *
  * 【错误处理】
- * - RateLimitGuard 触发时：抛出 429 Too Many Requests（由全局过滤器处理）
- * - 活动已关闭或满员时：Service 层抛出 400 BadRequestException
- * - 网络错误（Strapi 不可达）：Service 层抛出 503 ServiceUnavailableException
+ * - RateLimitGuard 触发时：429 Too Many Requests
+ * - 活动已关闭或满员：400 BadRequestException（来自 Service）
+ * - Strapi 不可达：503 ServiceUnavailableException（来自 Service）
  */
 
 import {
   Controller,
   Post,
+  Get,
   Body,
+  Query,
   UseGuards,
   HttpCode,
+  BadRequestException,
+  Res,
 } from '@nestjs/common'
+import type { Response } from 'express'
 import { RateLimitGuard } from '../common/guards/rate-limit.guard'
 import { RegistrationService } from './registration.service'
 import { CreateRegistrationDto } from './dto/create-registration.dto'
@@ -49,12 +59,26 @@ import { CreateRegistrationDto } from './dto/create-registration.dto'
 export class RegistrationController {
   constructor(private readonly registrationService: RegistrationService) {}
 
-  // POST /api/v1/registrations
+  // POST /api/v1/registrations — 公开接口，前台提交报名
   @Post('/')
-  @UseGuards(RateLimitGuard) // 速率限制：同 IP 每分钟最多 5 次
+  @UseGuards(RateLimitGuard)
   @HttpCode(201)
   async create(@Body() dto: CreateRegistrationDto) {
     const result = await this.registrationService.create(dto)
     return { success: true, id: result.id }
+  }
+
+  // GET /api/v1/registrations/export?eventId=xxx — 管理员后台调用，返回 CSV 文件
+  // BOM（﻿）确保 Excel 在 Windows 上正确识别 UTF-8 中文
+  @Get('export')
+  async exportCSV(
+    @Query('eventId') eventId: string,
+    @Res() res: Response,
+  ) {
+    if (!eventId) throw new BadRequestException('缺少必填参数 eventId')
+    const csv = await this.registrationService.exportRegistrations(eventId)
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8')
+    res.setHeader('Content-Disposition', `attachment; filename="registrations-${eventId}.csv"`)
+    res.send('﻿' + csv)
   }
 }
