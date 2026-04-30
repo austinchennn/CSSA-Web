@@ -9,30 +9,36 @@
  * Phase 1 阶段前端直接在浏览器端用 papaparse 导出，此处理器为未来扩展预留。
  *
  * 【依赖关系】
- * Imports from:
- *   - bullmq          : Worker, Job（BullMQ 任务处理基础类）
- *   - @nestjs/bullmq  : Processor, WorkerHost
- *   - @nestjs/config  : ConfigService
- *
  * Used by:
  *   - src/queue/queue.module.ts : providers 中注册
  *
- * 【任务处理方法】
- * @Processor('export')
- * export class ExportProcessor extends WorkerHost
- *
- * async process(job: Job<ExportJobData>): Promise<void>
- *   - job.data 包含：{ eventId, requestedBy, format: 'csv' | 'xlsx' }
- *   - 1. 调用 Strapi API 分页获取所有 Registrations（每页 100 条）
- *   - 2. 合并所有数据，调用 papaparse/exceljs 生成文件
- *   - 3. 将文件上传至云存储（S3 或 Strapi uploads），获取下载 URL
- *   - 4. 通过 email 队列发送"导出完成"通知邮件至请求者
- *
- * 【ExportJobData Interface】
- * interface ExportJobData
- *   - eventId: string
- *   - requestedBy: string  — 请求导出的管理员邮箱
- *   - format: 'csv'        — Phase 1 只支持 CSV
+ * 【Phase 1 说明】
+ * 本阶段只打日志占位，导出功能由前端 papaparse 直接处理。
+ * Phase 2 再实现服务端分页导出 + 云存储上传。
  */
 
-export {}
+import { Process, Processor } from '@nestjs/bull'
+import { Logger } from '@nestjs/common'
+import { Job } from 'bull'
+
+interface ExportJobData {
+  eventId: string
+  requestedBy: string   // 请求导出的管理员邮箱
+  format: 'csv'
+}
+
+@Processor('export')
+export class ExportProcessor {
+  private readonly logger = new Logger(ExportProcessor.name)
+
+  @Process()
+  async handleExport(job: Job<ExportJobData>): Promise<void> {
+    const { eventId, requestedBy, format } = job.data
+
+    // Phase 1：暂时只打日志
+    // Phase 2 实现：分页拉取 Strapi 报名数据 → 生成 CSV → 上传云存储 → 发邮件通知
+    this.logger.log(
+      `[导出队列] 收到导出任务，活动ID：${eventId}，格式：${format}，请求人：${requestedBy}`,
+    )
+  }
+}
