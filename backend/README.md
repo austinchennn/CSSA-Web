@@ -46,11 +46,11 @@ cd backend/microservice && npm install
 ```env
 HOST=0.0.0.0
 PORT=1337
-APP_KEYS=pJPKWqMaIvcWQGGgaMeOIHP3GsfzURBa7dP7Y07U81M=,hTzwehMvYQ+Iiwt2KAE/OKs5xNf0Yndd7dxbnlq/CXU=
-API_TOKEN_SALT=weute6ZHMP1OIwk+PIbPPWjDV5jSJF6qjhRoauO5Vu8=
-ADMIN_JWT_SECRET=U0VDLUK14J09BUN3Jk95n/r8QRDQIbbilV/thRvcojs=
-TRANSFER_TOKEN_SALT=eUIaScwbE25ToIgzaCSGeoxAZ1XR23ImLlqPkhy2fRU=
-JWT_SECRET=5ejzOyxR6FP1rAOmkN4PIh6J22SQS7+QyKhDe+vUI80=
+APP_KEYS=your-key-1,your-key-2
+API_TOKEN_SALT=your-api-token-salt
+ADMIN_JWT_SECRET=your-admin-jwt-secret
+TRANSFER_TOKEN_SALT=your-transfer-token-salt
+JWT_SECRET=your-jwt-secret
 DATABASE_CLIENT=postgres
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
@@ -59,6 +59,8 @@ DATABASE_USERNAME=postgres
 DATABASE_PASSWORD=postgres
 DATABASE_SSL=false
 ```
+
+> 实际密钥值已通过微信群发送，请填入本地 `.env`，**不要提交到代码库**。
 
 在 `backend/microservice/` 新建 `.env`：
 

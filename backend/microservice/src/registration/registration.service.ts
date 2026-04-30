@@ -82,7 +82,21 @@ export class RegistrationService {
       throw new BadRequestException('报名通道已关闭，该活动当前不接受报名')
     }
 
-    // 2. 转发到 Strapi 写入报名记录
+    // 2. 检查活动容量（capacity 为 null 表示不限人数）
+    if (event.capacity !== null && event.capacity !== undefined) {
+      const countResp = await firstValueFrom(
+        this.http.get(
+          `${this.strapiUrl}/api/registrations?filters[event][id][$eq]=${dto.eventId}&pagination[pageSize]=1`,
+          { headers }
+        )
+      )
+      const total = countResp.data?.meta?.pagination?.total ?? 0
+      if (total >= event.capacity) {
+        throw new BadRequestException('报名人数已满，感谢你的关注')
+      }
+    }
+
+    // 3. 转发到 Strapi 写入报名记录
     let registration: any
     try {
       const resp = await firstValueFrom(
@@ -101,7 +115,7 @@ export class RegistrationService {
 
     const registrationId = String(registration.id)
 
-    // 3. 异步发送确认邮件（若 userInfo 包含 email 字段）
+    // 4. 异步发送确认邮件（若 userInfo 包含 email 字段）
     const userEmail = dto.userInfo?.email as string | undefined
     if (userEmail) {
       await this.emailQueue.add('registration_confirmed', {
