@@ -1,28 +1,33 @@
 {
-  "_comment": "Strapi Content Type Schema — Past_Events (Collection Type)",
-  "_purpose": "往期活动回顾表。photo 字段强制必填是架构决策——前台 EventCard 和 Timeline 组件无需做图片缺失的防御处理，保持代码简洁。",
-  "_field_definitions": {
-    "kind": "collectionType",
-    "collectionName": "past_events",
-    "attributes": {
-      "event_name": { "type": "string", "required": true, "description": "往期活动名称" },
-      "introduction": {
-        "type": "richtext",
-        "required": true,
-        "description": "活动介绍与总结，存储为富文本（HTML 字符串）。后台使用 TipTap 编辑，前台直接 dangerouslySetInnerHTML 渲染（需 DOMPurify 清洁）。"
-      },
-      "photo": {
-        "type": "media",
-        "multiple": false,
-        "required": true,
-        "allowedTypes": ["images"],
-        "description": "精选活动封面，强制单图且必填。数据库层约束保证前端无需做图片空值处理。"
-      },
-      "event_date": {
-        "type": "date",
-        "required": true,
-        "description": "举办日期（仅日期，不含时间）。前端 Timeline 按此字段 event_date:desc 倒序排列。"
-      }
+  "kind": "collectionType",
+  "collectionName": "past_events",
+  "info": {
+    "singularName": "past-event",
+    "pluralName": "past-events",
+    "displayName": "往期活动",
+    "description": "已结束的历史活动回顾"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "event_name": {
+      "type": "string",
+      "required": true
+    },
+    "introduction": {
+      "type": "richtext",
+      "required": true
+    },
+    "photo": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["images"]
+    },
+    "event_date": {
+      "type": "date",
+      "required": true
     }
   }
 }
