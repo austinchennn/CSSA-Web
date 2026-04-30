@@ -4,6 +4,129 @@
 
 ---
 
+## 快速开始
+
+### 系统依赖（首次配置，只做一次）
+
+**1. 安装 Docker Desktop**
+
+下载地址：https://www.docker.com/products/docker-desktop/
+
+下载 Windows 版安装包 → 安装 → **重启电脑** → 打开 Docker Desktop 等左下角变绿。
+
+**2. 安装 nvm-windows + Node 20**
+
+打开 PowerShell（管理员），执行：
+
+```powershell
+winget install CoreyButler.NVMforWindows
+```
+
+安装完后**重新打开终端**，执行：
+
+```powershell
+nvm install 20
+nvm use 20
+node -v   # 应显示 v20.x.x
+```
+
+> ⚠️ Strapi 4 只支持 Node 18/20，Node 22+ 会启动报错。每次打开新终端都要执行 `nvm use 20`。
+
+**3. 安装依赖**
+
+```bash
+cd backend/strapi && npm install
+cd backend/microservice && npm install
+```
+
+**4. 配置环境变量**
+
+在 `backend/strapi/` 新建 `.env`：
+
+```env
+HOST=0.0.0.0
+PORT=1337
+APP_KEYS=pJPKWqMaIvcWQGGgaMeOIHP3GsfzURBa7dP7Y07U81M=,hTzwehMvYQ+Iiwt2KAE/OKs5xNf0Yndd7dxbnlq/CXU=
+API_TOKEN_SALT=weute6ZHMP1OIwk+PIbPPWjDV5jSJF6qjhRoauO5Vu8=
+ADMIN_JWT_SECRET=U0VDLUK14J09BUN3Jk95n/r8QRDQIbbilV/thRvcojs=
+TRANSFER_TOKEN_SALT=eUIaScwbE25ToIgzaCSGeoxAZ1XR23ImLlqPkhy2fRU=
+JWT_SECRET=5ejzOyxR6FP1rAOmkN4PIh6J22SQS7+QyKhDe+vUI80=
+DATABASE_CLIENT=postgres
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_NAME=cssa_web_dev
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=postgres
+DATABASE_SSL=false
+```
+
+在 `backend/microservice/` 新建 `.env`：
+
+```env
+PORT=3002
+NODE_ENV=development
+STRAPI_URL=http://localhost:1337
+STRAPI_API_TOKEN=（启动 Strapi 后从 Admin → Settings → API Tokens 获取）
+REDIS_HOST=localhost
+REDIS_PORT=6379
+CLIENT_URL=http://localhost:3000
+ADMIN_FRONTEND_URL=http://localhost:3001
+```
+
+---
+
+### 日常启动（每次开发，开三个终端）
+
+**终端 1 — 数据库**
+
+```bash
+cd backend
+docker-compose up -d
+docker-compose ps   # 两个容器都显示 healthy 才继续
+```
+
+**终端 2 — Strapi CMS**
+
+```bash
+nvm use 20
+cd backend/strapi
+npm run develop
+# 等出现 Server started at http://localhost:1337
+```
+
+首次启动需在 `http://localhost:1337/admin` 创建管理员账号，然后参考 `tech_repo/后端/Austin后续任务SOP.md` 完成权限配置和种子数据录入。
+
+**终端 3 — NestJS 微服务**
+
+```bash
+cd backend/microservice
+npm run start:dev
+# 等出现：微服务已启动，端口：3002
+```
+
+### 端口一览
+
+| 服务 | 地址 |
+|------|------|
+| Strapi Admin UI | http://localhost:1337/admin |
+| Strapi REST API | http://localhost:1337/api |
+| Strapi GraphQL | http://localhost:1337/graphql |
+| NestJS 微服务 | http://localhost:3002 |
+| PostgreSQL | localhost:5432 |
+| Redis | localhost:6379 |
+
+### 常见问题
+
+| 问题 | 解决方法 |
+|------|----------|
+| `node: command not found` 或版本不对 | 执行 `nvm use 20` |
+| Strapi 报数据库连接失败 | 先跑 `docker-compose up -d`，等 healthy |
+| 5432 端口被占用 | 打开服务管理器（services.msc），停止本地 PostgreSQL 服务 |
+| `docker-compose` 找不到命令 | 打开 Docker Desktop 等变绿再试 |
+| 微服务报 401 Unauthorized | `STRAPI_API_TOKEN` 填错或未填，重新从 Strapi Admin 获取 |
+
+---
+
 ## PRD 产品需求
 
 ### 定位
