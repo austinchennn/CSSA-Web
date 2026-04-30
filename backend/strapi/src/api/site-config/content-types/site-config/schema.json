@@ -23,5 +23,48 @@
       }
     }
   },
-  "_note": "此文件是 Strapi 自动生成格式的描述，实际开发时通过 Strapi Admin UI 建模，Strapi 自动生成真实 schema.json"
+  "_note": "此文件是 Strapi 自动生成格式的描述，实际开发时通过 Strapi Admin UI 建模，Strapi 自动生成真实 schema.json",
+
+  "kind": "singleType",
+  "collectionName": "site_config",
+  "info": {
+    "singularName": "site-config",
+    "pluralName": "site-configs",
+    "displayName": "全站配置 Site Config",
+    "description": "全站可配置文案，Hero 标题、联系邮箱、社交媒体链接等。Single Type 全站只有一条记录。"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "hero_title": {
+      "type": "string",
+      "required": true,
+      "default": "欢迎来到 UTMCSSA"
+    },
+    "hero_subtitle": {
+      "type": "text",
+      "required": false
+    },
+    "contact_email": {
+      "type": "email",
+      "required": true
+    },
+    "instagram_url": {
+      "type": "string",
+      "required": false
+    },
+    "wechat_id": {
+      "type": "string",
+      "required": false
+    },
+    "about_description": {
+      "type": "text",
+      "required": false
+    },
+    "join_us_description": {
+      "type": "text",
+      "required": false
+    }
+  }
 }

@@ -1,6 +1,22 @@
-// Strapi 插件配置
-// 启用 GraphQL（供前台查询）和文件上传插件
+/**
+ * ============================================================
+ * FILE: backend/strapi/config/plugins.ts
+ * ============================================================
+ *
+ * 【作用】
+ * Strapi 插件配置文件。启用和配置 GraphQL、Upload、i18n 等插件。
+ *
+ * 【依赖关系】
+ * Used by:
+ *   - Strapi 框架在启动时自动加载，激活对应插件
+ *
+ * 【生产环境注意】
+ * - playgroundAlwaysEnable 必须为 false
+ * - upload provider 建议切换为云存储（AWS S3 或 Cloudinary）
+ * - depthLimit 和 amountLimit 根据实际业务需求调整，但不要过大
+ */
 
+// 启用 GraphQL（供前台查询）和文件上传插件
 export default ({ env }: { env: (key: string, fallback?: unknown) => unknown }) => ({
 
   // GraphQL 插件：前台用 GraphQL 查询 CMS 数据

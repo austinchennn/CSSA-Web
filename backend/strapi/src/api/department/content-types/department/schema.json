@@ -15,5 +15,38 @@
         "description": "反向关联：该部门下的所有成员（通过 Members.dept_id 建立）"
       }
     }
+  },
+
+  "kind": "collectionType",
+  "collectionName": "departments",
+  "info": {
+    "singularName": "department",
+    "pluralName": "departments",
+    "displayName": "部门 Department",
+    "description": "社团各部门信息，成员归属的数据来源"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "leader_name": {
+      "type": "string",
+      "required": true
+    },
+    "introduction": {
+      "type": "text",
+      "required": false
+    },
+    "members": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::member.member",
+      "mappedBy": "department"
+    }
   }
 }

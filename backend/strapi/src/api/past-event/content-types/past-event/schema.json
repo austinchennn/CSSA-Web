@@ -24,5 +24,37 @@
         "description": "举办日期（仅日期，不含时间）。前端 Timeline 按此字段 event_date:desc 倒序排列。"
       }
     }
+  },
+
+  "kind": "collectionType",
+  "collectionName": "past_events",
+  "info": {
+    "singularName": "past-event",
+    "pluralName": "past-events",
+    "displayName": "往期活动 Past Event",
+    "description": "往期活动回顾，前台 Events 页 Timeline 区域按日期倒序展示"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "event_name": {
+      "type": "string",
+      "required": true
+    },
+    "introduction": {
+      "type": "richtext",
+      "required": true
+    },
+    "photo": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["images"]
+    },
+    "event_date": {
+      "type": "date",
+      "required": true
+    }
   }
 }
