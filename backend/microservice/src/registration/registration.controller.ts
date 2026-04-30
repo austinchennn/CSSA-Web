@@ -34,4 +34,27 @@
  * - 网络错误（Strapi 不可达）：Service 层抛出 503 ServiceUnavailableException
  */
 
-export {}
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  HttpCode,
+} from '@nestjs/common'
+import { RateLimitGuard } from '../common/guards/rate-limit.guard'
+import { RegistrationService } from './registration.service'
+import { CreateRegistrationDto } from './dto/create-registration.dto'
+
+@Controller('registrations')
+export class RegistrationController {
+  constructor(private readonly registrationService: RegistrationService) {}
+
+  // POST /api/v1/registrations
+  @Post('/')
+  @UseGuards(RateLimitGuard) // 速率限制：同 IP 每分钟最多 5 次
+  @HttpCode(201)
+  async create(@Body() dto: CreateRegistrationDto) {
+    const result = await this.registrationService.create(dto)
+    return { success: true, id: result.id }
+  }
+}

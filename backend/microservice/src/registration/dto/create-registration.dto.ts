@@ -37,4 +37,15 @@
  * - 前台 DynamicForm 已做前端校验，此处只做基础格式防御
  */
 
-export {}
+import { IsString, IsNotEmpty, IsObject } from 'class-validator'
+
+export class CreateRegistrationDto {
+  @IsString()
+  @IsNotEmpty({ message: '活动 ID 不能为空' })
+  eventId: string
+
+  // 动态表单数据，内部字段因活动而异，只做顶层格式校验
+  @IsObject()
+  @IsNotEmpty({ message: '表单数据不能为空' })
+  userInfo: Record<string, string | number>
+}

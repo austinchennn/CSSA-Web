@@ -20,26 +20,35 @@
  *   - src/app.module.ts : 在 AppModule.imports 中注册
  *
  * 【模块配置】
- * @Module({
- *   imports: [
- *     BullModule.forRootAsync({
- *       useFactory: (config: ConfigService) => ({
- *         connection: {
- *           host: config.get('REDIS_HOST', 'localhost'),
- *           port: config.get<number>('REDIS_PORT', 6379),
- *         },
- *       }),
- *       inject: [ConfigService],
- *     }),
- *     BullModule.registerQueue(
- *       { name: 'email' },   — 邮件发送队列
- *       { name: 'export' },  — 数据导出队列
- *     ),
- *   ],
- *   providers: [ExportProcessor, EmailProcessor],
- *   exports: [BullModule],   — 导出供 RegistrationService 注入队列
- * })
- * export class QueueModule {}
+ * BullModule.forRootAsync — 从 ConfigService 动态读取 Redis host/port
+ * BullModule.registerQueue — 注册 email 和 export 两个队列
+ * exports: [BullModule]   — 导出供 RegistrationService 注入队列
  */
+import { Module } from '@nestjs/common'
+import { BullModule } from '@nestjs/bullmq'
+import { ConfigService } from '@nestjs/config'
+import { EmailProcessor } from './email.processor'
+import { ExportProcessor } from './export.processor'
 
-export {}
+@Module({
+  imports: [
+    BullModule.forRootAsync({
+      // 从环境变量读取 Redis 地址，开发/生产环境无缝切换
+      useFactory: (config: ConfigService) => ({
+        connection: {
+          host: config.get('REDIS_HOST', 'localhost'),
+          port: config.get<number>('REDIS_PORT', 6379),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+    BullModule.registerQueue(
+      { name: 'email' },   // 发送报名确认邮件
+      { name: 'export' },  // 异步导出 CSV（Task 7/P2 阶段实现）
+    ),
+  ],
+  providers: [EmailProcessor, ExportProcessor],
+  // 导出 BullModule 供 RegistrationModule 使用 InjectQueue('email')
+  exports: [BullModule],
+})
+export class QueueModule {}
