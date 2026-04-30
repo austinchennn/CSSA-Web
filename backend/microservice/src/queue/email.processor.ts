@@ -44,4 +44,40 @@
  * - transporter: Transporter — Nodemailer SMTP 连接（从 ConfigService 读取 SMTP_HOST/PORT/USER/PASS）
  */
 
-export {}
+import { Processor, WorkerHost } from '@nestjs/bullmq'
+import { Logger } from '@nestjs/common'
+import { Job } from 'bullmq'
+
+interface EmailJobData {
+  type: 'registration_confirmed' | 'status_changed' | 'export_complete'
+  to: string
+  subject?: string
+  data: Record<string, unknown>
+}
+
+// Task 8（P2）：接入真实 SMTP 邮件发送，目前只打日志占位
+@Processor('email')
+export class EmailProcessor extends WorkerHost {
+  private readonly logger = new Logger(EmailProcessor.name)
+
+  async process(job: Job<EmailJobData>): Promise<void> {
+    const { type, to, data } = job.data
+
+    switch (type) {
+      case 'registration_confirmed':
+        // TODO Task 8: 用 Nodemailer 发送报名确认邮件
+        this.logger.log(`[TODO] 报名确认邮件 → ${to}，活动：${data.eventTitle}`)
+        break
+      case 'status_changed':
+        // TODO Task 8: 发送审批状态变更通知
+        this.logger.log(`[TODO] 状态变更邮件 → ${to}，新状态：${data.status}`)
+        break
+      case 'export_complete':
+        // TODO Task 7: 发送导出完成通知
+        this.logger.log(`[TODO] 导出完成邮件 → ${to}`)
+        break
+      default:
+        this.logger.warn(`未知邮件类型：${type}`)
+    }
+  }
+}

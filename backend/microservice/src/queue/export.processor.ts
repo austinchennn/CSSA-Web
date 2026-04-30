@@ -35,4 +35,26 @@
  *   - format: 'csv'        — Phase 1 只支持 CSV
  */
 
-export {}
+import { Processor, WorkerHost } from '@nestjs/bullmq'
+import { Logger } from '@nestjs/common'
+import { Job } from 'bullmq'
+
+interface ExportJobData {
+  eventId: string
+  requestedBy: string // 请求导出的管理员邮箱
+  format: 'csv'
+}
+
+// Task 7（P2）：实现真实 CSV 导出，目前只打日志占位
+@Processor('export')
+export class ExportProcessor extends WorkerHost {
+  private readonly logger = new Logger(ExportProcessor.name)
+
+  async process(job: Job<ExportJobData>): Promise<void> {
+    const { eventId, requestedBy, format } = job.data
+    // TODO Task 7: 调用 Strapi API 分页拉取报名数据，生成 CSV 并发送下载链接
+    this.logger.log(
+      `[TODO] 导出任务收到 — eventId: ${eventId}, format: ${format}, 请求人: ${requestedBy}`
+    )
+  }
+}

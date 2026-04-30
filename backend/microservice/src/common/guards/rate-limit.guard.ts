@@ -39,4 +39,57 @@
  * - 生产环境应考虑 IP + 用户标识的组合作为限流 key，防止 IP 共享场景误限
  */
 
-export {}
+import {
+  CanActivate,
+  ExecutionContext,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import Redis from 'ioredis'
+
+// 每个 IP 在 WINDOW_SECONDS 内最多提交 RATE_LIMIT 次
+const RATE_LIMIT = 5
+const WINDOW_SECONDS = 60
+
+@Injectable()
+export class RateLimitGuard implements CanActivate {
+  private redis: Redis
+
+  constructor(private config: ConfigService) {
+    // 独立 Redis 连接，复用 BullMQ 的 Redis 配置
+    this.redis = new Redis({
+      host: config.get('REDIS_HOST', 'localhost'),
+      port: config.get<number>('REDIS_PORT', 6379),
+    })
+  }
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest()
+
+    // 优先从 X-Forwarded-For 获取真实 IP（反向代理场景），其次用 request.ip
+    const ip =
+      (request.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+      request.ip
+
+    const key = `rate_limit:registration:${ip}`
+
+    // INCR 原子递增，首次写入时 count=1
+    const count = await this.redis.incr(key)
+
+    // 首次请求时设置过期时间，确保时间窗口到期后自动重置
+    if (count === 1) {
+      await this.redis.expire(key, WINDOW_SECONDS)
+    }
+
+    if (count > RATE_LIMIT) {
+      throw new HttpException(
+        `提交过于频繁，请 ${WINDOW_SECONDS} 秒后再试`,
+        HttpStatus.TOO_MANY_REQUESTS
+      )
+    }
+
+    return true
+  }
+}

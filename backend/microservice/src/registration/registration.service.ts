@@ -36,4 +36,96 @@
  * - STRAPI_API_TOKEN: string — Strapi 全权限 API Token（从环境变量读取，不暴露给前端）
  */
 
-export {}
+import {
+  Injectable,
+  BadRequestException,
+  ServiceUnavailableException,
+  Logger,
+} from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { HttpService } from '@nestjs/axios'
+import { InjectQueue } from '@nestjs/bullmq'
+import { Queue } from 'bullmq'
+import { firstValueFrom } from 'rxjs'
+import { CreateRegistrationDto } from './dto/create-registration.dto'
+
+@Injectable()
+export class RegistrationService {
+  private readonly logger = new Logger(RegistrationService.name)
+  private readonly strapiUrl: string
+  private readonly strapiToken: string
+
+  constructor(
+    private config: ConfigService,
+    private http: HttpService,
+    @InjectQueue('email') private emailQueue: Queue,
+  ) {
+    this.strapiUrl = config.get('STRAPI_URL', 'http://localhost:1337')
+    this.strapiToken = config.get('STRAPI_API_TOKEN', '')
+  }
+
+  async create(dto: CreateRegistrationDto): Promise<{ id: string }> {
+    const headers = { Authorization: `Bearer ${this.strapiToken}` }
+
+    // 1. 查询活动状态和容量（Strapi Controller 层也会做校验，这里是双保险）
+    let event: any
+    try {
+      const resp = await firstValueFrom(
+        this.http.get(`${this.strapiUrl}/api/events/${dto.eventId}`, { headers })
+      )
+      event = resp.data?.data?.attributes
+    } catch {
+      throw new ServiceUnavailableException('Strapi 服务暂时不可达，请稍后重试')
+    }
+
+    if (!event || event.status !== 'active') {
+      throw new BadRequestException('报名通道已关闭，该活动当前不接受报名')
+    }
+
+    // 2. 检查活动容量（capacity 为 null 表示不限人数）
+    if (event.capacity !== null && event.capacity !== undefined) {
+      const countResp = await firstValueFrom(
+        this.http.get(
+          `${this.strapiUrl}/api/registrations?filters[event][id][$eq]=${dto.eventId}&pagination[pageSize]=1`,
+          { headers }
+        )
+      )
+      const total = countResp.data?.meta?.pagination?.total ?? 0
+      if (total >= event.capacity) {
+        throw new BadRequestException('报名人数已满，感谢你的关注')
+      }
+    }
+
+    // 3. 转发到 Strapi 写入报名记录
+    let registration: any
+    try {
+      const resp = await firstValueFrom(
+        this.http.post(
+          `${this.strapiUrl}/api/registrations`,
+          { data: { event: dto.eventId, user_info: dto.userInfo, status: 'pending' } },
+          { headers }
+        )
+      )
+      registration = resp.data?.data
+    } catch (err: any) {
+      // Strapi 业务校验失败（如活动已满），原样透传错误信息
+      const msg = err.response?.data?.error?.message || '提交报名失败'
+      throw new BadRequestException(msg)
+    }
+
+    const registrationId = String(registration.id)
+
+    // 4. 异步发送确认邮件（若 userInfo 包含 email 字段）
+    const userEmail = dto.userInfo?.email as string | undefined
+    if (userEmail) {
+      await this.emailQueue.add('registration_confirmed', {
+        type: 'registration_confirmed',
+        to: userEmail,
+        data: { eventTitle: event.title, registrationId },
+      })
+    }
+
+    this.logger.log(`报名成功 — ID: ${registrationId}, 活动: ${event.title}`)
+    return { id: registrationId }
+  }
+}
