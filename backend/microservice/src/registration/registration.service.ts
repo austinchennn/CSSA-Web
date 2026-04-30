@@ -128,4 +128,57 @@ export class RegistrationService {
     this.logger.log(`报名成功 — ID: ${registrationId}, 活动: ${event.title}`)
     return { id: registrationId }
   }
+
+  // 导出某活动所有报名记录为 CSV 字符串
+  // 列头由 form_schema 的 label 字段决定，数据行从 user_info 取对应 key
+  async exportRegistrations(eventId: string): Promise<string> {
+    const headers = { Authorization: `Bearer ${this.strapiToken}` }
+
+    // 1. 获取活动 form_schema（CSV 列头定义）
+    const eventResp = await firstValueFrom(
+      this.http.get(`${this.strapiUrl}/api/events/${eventId}`, { headers })
+    ).catch(() => { throw new BadRequestException('活动不存在') })
+
+    const formSchema: Array<{ field: string; label: string }> =
+      eventResp.data?.data?.attributes?.form_schema ?? []
+
+    // 2. 分页拉取全部报名记录（每页 100 条，循环到取完为止）
+    const allItems: Array<{ id: number; attributes: { status: string; user_info: Record<string, unknown> } }> = []
+    let page = 1
+    while (true) {
+      const resp = await firstValueFrom(
+        this.http.get(
+          `${this.strapiUrl}/api/registrations?filters[event][id][$eq]=${eventId}&pagination[page]=${page}&pagination[pageSize]=100`,
+          { headers }
+        )
+      )
+      const items = resp.data?.data ?? []
+      allItems.push(...items)
+      if (items.length < 100) break
+      page++
+    }
+
+    const keys   = formSchema.map((f) => f.field)
+    const labels = formSchema.map((f) => f.label)
+
+    // 含逗号/换行/双引号的单元格用双引号包裹，内部双引号转义为 ""
+    const esc = (val: unknown): string => {
+      const s = val == null ? '' : String(val)
+      return s.includes(',') || s.includes('\n') || s.includes('"')
+        ? `"${s.replace(/"/g, '""')}"`
+        : s
+    }
+
+    const rows = [
+      ['报名ID', '状态', ...labels].map(esc).join(','),
+      ...allItems.map((item) => {
+        const info = item.attributes?.user_info ?? {}
+        return [item.id, item.attributes?.status, ...keys.map((k) => info[k])]
+          .map(esc)
+          .join(',')
+      }),
+    ]
+
+    return rows.join('\n')
+  }
 }
