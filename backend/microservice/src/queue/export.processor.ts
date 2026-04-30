@@ -34,11 +34,13 @@ export class ExportProcessor {
   @Process()
   async handleExport(job: Job<ExportJobData>): Promise<void> {
     const { eventId, requestedBy, format } = job.data
+    this.logger.log(`[导出任务 ${job.id}] 开始：eventId=${eventId}, by=${requestedBy}, format=${format}`)
 
-    // Phase 1：暂时只打日志
-    // Phase 2 实现：分页拉取 Strapi 报名数据 → 生成 CSV → 上传云存储 → 发邮件通知
-    this.logger.log(
-      `[导出队列] 收到导出任务，活动ID：${eventId}，格式：${format}，请求人：${requestedBy}`,
-    )
+    // Phase 1：仅记录日志，验证 BullMQ 队列连通性
+    // Phase 2 实现计划：
+    //   1. 调用 RegistrationService.exportRegistrations(eventId) 生成 CSV 字符串
+    //   2. 将文件写入临时目录或上传至 S3/Strapi uploads
+    //   3. 获取下载 URL，通过 email 队列发送通知邮件至 requestedBy
+    this.logger.log(`[导出任务 ${job.id}] 完成（Phase 1 仅记录日志）`)
   }
 }
