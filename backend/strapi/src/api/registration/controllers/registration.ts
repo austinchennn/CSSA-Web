@@ -12,7 +12,7 @@ export default factories.createCoreController(
   ({ strapi }) => ({
 
     async create(ctx) {
-      const { event: eventId } = ctx.request.body.data
+      const { event: eventId } = (ctx.request.body as any).data
 
       // 查询活动详情，确认其是否存在及当前状态
       const event = await strapi.entityService.findOne(
@@ -52,7 +52,7 @@ export default factories.createCoreController(
     },
 
     async update(ctx) {
-      const body = ctx.request.body.data || {}
+      const body = (ctx.request.body as any).data || {}
       const submittedFields = Object.keys(body)
       // 审批操作只允许改 status，防止管理员界面误操作覆盖用户填写的 user_info
       const forbidden = submittedFields.filter((k) => k !== 'status')

@@ -19,6 +19,8 @@
  * 团队成员克隆仓库后只需 npm run develop，环境自动就绪，
  * 不需要每人手动点 UI 配置权限和录入测试数据，减少人为失误。
  */
+import * as fs from 'fs'
+import * as path from 'path'
 import resolvers from './extensions/graphql/resolvers'
 
 // ============================================================
@@ -83,17 +85,20 @@ async function seedIfEmpty(strapi: any): Promise<void> {
 
   strapi.log.info('[Seed] 数据库为空，开始录入种子数据...')
 
-  // 1. 全站配置（Single Type，直接 upsert）
-  await strapi.db.query('api::site-config.site-config').upsert({
-    where: {},
-    create: {
-      hero_title: '欢迎来到 UTMCSSA',
-      hero_subtitle: '多伦多大学密西沙加校区中国学生学者联合会',
-      contact_email: 'utmcssa@gmail.com',
-      instagram_url: 'https://instagram.com/utmcssa',
-    },
-    update: {},
-  })
+  // 1. 全站配置（Single Type，先查后建）
+  const existingSiteConfig = await strapi.db
+    .query('api::site-config.site-config')
+    .findOne({})
+  if (!existingSiteConfig) {
+    await strapi.db.query('api::site-config.site-config').create({
+      data: {
+        hero_title: '欢迎来到 UTMCSSA',
+        hero_subtitle: '多伦多大学密西沙加校区中国学生学者联合会',
+        contact_email: 'utmcssa@gmail.com',
+        instagram_url: 'https://instagram.com/utmcssa',
+      },
+    })
+  }
 
   // 2. 部门（Member 依赖 Department，必须先建）
   const [zxt, scb, xsb] = await Promise.all([
@@ -209,9 +214,12 @@ async function seedIfEmpty(strapi: any): Promise<void> {
 
 export default {
   register({ strapi }: { strapi: any }) {
-    // 注册自定义 GraphQL resolver（registrationCountByEvent）
+    const typeDefs = fs.readFileSync(
+      path.join(__dirname, 'extensions/graphql/schema.graphql'),
+      'utf-8'
+    )
     const extensionService = strapi.plugin('graphql').service('extension')
-    extensionService.use({ resolvers })
+    extensionService.use({ typeDefs, resolvers })
   },
 
   async bootstrap({ strapi }: { strapi: any }) {
