@@ -32,8 +32,8 @@ export default ({ env }: { env: (key: string, fallback?: unknown) => unknown }) 
       database: env('DATABASE_NAME',     'cssa_web_dev'), // 数据库名
       user:     env('DATABASE_USERNAME', 'postgres'),     // 用户名
       password: env('DATABASE_PASSWORD', 'postgres'),     // 密码（生产环境通过 CI/CD 注入）
-      ssl: env('DATABASE_SSL', false)
-        ? { rejectUnauthorized: env('DATABASE_SSL_REJECT_UNAUTHORIZED', true) }
+      ssl: env('DATABASE_SSL', 'false') === 'true'
+        ? { rejectUnauthorized: env('DATABASE_SSL_REJECT_UNAUTHORIZED', 'true') !== 'false' }
         : false,                  // 生产环境开启 SSL，本地开发关闭
     },
     acquireConnectionTimeout: env('DATABASE_CONNECTION_TIMEOUT', 60000), // 连接超时 60s

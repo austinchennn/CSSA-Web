@@ -31,4 +31,5 @@
  * - Authenticated：create, update, delete
  */
 
-export {}
+import { factories } from '@strapi/strapi'
+export default factories.createCoreController('api::event.event')

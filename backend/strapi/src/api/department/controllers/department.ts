@@ -21,4 +21,5 @@
  * - Authenticated（管理员）：create, update, delete
  */
 
-export {}
+import { factories } from '@strapi/strapi'
+export default factories.createCoreController('api::department.department')

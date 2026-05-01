@@ -1,70 +1,33 @@
 {
-  "_comment": "Strapi Content Type Schema — Site_Configs (Single Type)",
-  "_purpose": "定义全站配置表的字段结构。Strapi 根据此 JSON 自动生成数据库表和 REST/GraphQL API。修改此文件后需重启 Strapi 使变更生效。",
-  "_field_definitions": {
-    "kind": "singleType — 全站只有一条记录，非列表型",
-    "collectionName": "site_configs",
-    "attributes": {
-      "key": {
-        "type": "string",
-        "unique": true,
-        "required": true,
-        "description": "配置键值，命名规范：模块_字段名，如 home_hero_title"
-      },
-      "value": {
-        "type": "json",
-        "required": true,
-        "description": "配置值，可存储字符串或 JSON 结构数据"
-      },
-      "description": {
-        "type": "string",
-        "required": false,
-        "description": "字段用途说明，供后台编辑人员查看，不对前端暴露"
-      }
-    }
-  },
-  "_note": "此文件是 Strapi 自动生成格式的描述，实际开发时通过 Strapi Admin UI 建模，Strapi 自动生成真实 schema.json",
-
   "kind": "singleType",
-  "collectionName": "site_config",
+  "collectionName": "site_configs",
   "info": {
     "singularName": "site-config",
     "pluralName": "site-configs",
-    "displayName": "全站配置 Site Config",
-    "description": "全站可配置文案，Hero 标题、联系邮箱、社交媒体链接等。Single Type 全站只有一条记录。"
+    "displayName": "全站配置",
+    "description": "全站唯一配置项：首页文案、联系方式、社交媒体链接、About/Join 简介"
   },
   "options": {
     "draftAndPublish": false
   },
   "attributes": {
     "hero_title": {
-      "type": "string",
-      "required": true,
-      "default": "欢迎来到 UTMCSSA"
+      "type": "string"
     },
     "hero_subtitle": {
-      "type": "text",
-      "required": false
+      "type": "string"
     },
     "contact_email": {
-      "type": "email",
-      "required": true
+      "type": "string"
     },
-    "instagram_url": {
-      "type": "string",
-      "required": false
-    },
-    "wechat_id": {
-      "type": "string",
-      "required": false
+    "social_links": {
+      "type": "json"
     },
     "about_description": {
-      "type": "text",
-      "required": false
+      "type": "text"
     },
     "join_us_description": {
-      "type": "text",
-      "required": false
+      "type": "text"
     }
   }
 }

@@ -39,4 +39,5 @@
  * - 可限制 Public 角色只能 find（不能 create/update/delete）
  */
 
-export {}
+import { factories } from '@strapi/strapi'
+export default factories.createCoreController('api::site-config.site-config')

@@ -37,4 +37,5 @@
  * - Authenticated：find, findOne, update, delete
  */
 
-export {}
+import { factories } from '@strapi/strapi'
+export default factories.createCoreController('api::registration.registration')

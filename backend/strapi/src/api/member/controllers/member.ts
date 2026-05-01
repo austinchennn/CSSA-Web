@@ -26,4 +26,5 @@
  * - populate 在 GraphQL 中通过嵌套字段选择实现（无需额外配置）
  */
 
-export {}
+import { factories } from '@strapi/strapi'
+export default factories.createCoreController('api::member.member')
