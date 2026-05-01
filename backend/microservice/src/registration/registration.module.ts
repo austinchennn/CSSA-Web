@@ -1,15 +1,35 @@
-// 报名模块：将 Controller、Service、Guard 组装在一起
+/**
+ * ============================================================
+ * FILE: backend/microservice/src/registration/registration.module.ts
+ * ============================================================
+ *
+ * 【作用】
+ * 报名模块。组装 RegistrationController 和 RegistrationService，
+ * 导入 HttpModule 供 Service 调用 Strapi API，
+ * 导入 BullModule 注册 email 队列供 Service 注入。
+ *
+ * 【依赖关系】
+ * Imports from:
+ *   - @nestjs/common   : Module
+ *   - @nestjs/axios    : HttpModule
+ *   - @nestjs/bullmq   : BullModule
+ *
+ * Used by:
+ *   - src/app.module.ts : AppModule.imports
+ */
 import { Module } from '@nestjs/common'
-import { BullModule } from '@nestjs/bull'
+import { HttpModule } from '@nestjs/axios'
+import { BullModule } from '@nestjs/bullmq'
 import { RegistrationController } from './registration.controller'
 import { RegistrationService } from './registration.service'
+import { RateLimitGuard } from '../common/guards/rate-limit.guard'
 
 @Module({
   imports: [
-    // 注入 email 队列，供 RegistrationService 使用
-    BullModule.registerQueue({ name: 'email' }),
+    HttpModule,                                   // 提供 HttpService 调用 Strapi
+    BullModule.registerQueue({ name: 'email' }),  // 注入 email 队列
   ],
   controllers: [RegistrationController],
-  providers: [RegistrationService],
+  providers: [RegistrationService, RateLimitGuard],
 })
 export class RegistrationModule {}

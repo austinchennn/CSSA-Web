@@ -17,30 +17,26 @@
  * Phase 2 再实现服务端分页导出 + 云存储上传。
  */
 
-import { Process, Processor } from '@nestjs/bull'
+import { Processor, WorkerHost } from '@nestjs/bullmq'
 import { Logger } from '@nestjs/common'
-import { Job } from 'bull'
+import { Job } from 'bullmq'
 
 interface ExportJobData {
   eventId: string
-  requestedBy: string   // 请求导出的管理员邮箱
+  requestedBy: string // 请求导出的管理员邮箱
   format: 'csv'
 }
 
+// Task 7（P2）：实现真实 CSV 导出，目前只打日志占位
 @Processor('export')
-export class ExportProcessor {
+export class ExportProcessor extends WorkerHost {
   private readonly logger = new Logger(ExportProcessor.name)
 
-  @Process()
-  async handleExport(job: Job<ExportJobData>): Promise<void> {
+  async process(job: Job<ExportJobData>): Promise<void> {
     const { eventId, requestedBy, format } = job.data
-    this.logger.log(`[导出任务 ${job.id}] 开始：eventId=${eventId}, by=${requestedBy}, format=${format}`)
-
-    // Phase 1：仅记录日志，验证 BullMQ 队列连通性
-    // Phase 2 实现计划：
-    //   1. 调用 RegistrationService.exportRegistrations(eventId) 生成 CSV 字符串
-    //   2. 将文件写入临时目录或上传至 S3/Strapi uploads
-    //   3. 获取下载 URL，通过 email 队列发送通知邮件至 requestedBy
-    this.logger.log(`[导出任务 ${job.id}] 完成（Phase 1 仅记录日志）`)
+    // TODO Task 7: 调用 Strapi API 分页拉取报名数据，生成 CSV 并发送下载链接
+    this.logger.log(
+      `[TODO] 导出任务收到 — eventId: ${eventId}, format: ${format}, 请求人: ${requestedBy}`
+    )
   }
 }

@@ -13,42 +13,46 @@
  *   - src/queue/queue.module.ts
  *   - src/registration/registration.service.ts : 报名成功后加入 email 队列
  *
- * 【任务处理方法】
+ * 【任务类型】
  * - registration_confirmed：发送"报名成功"确认邮件
- * - status_changed：发送状态变更通知
+ * - status_changed：发送审批状态变更通知
+ * - export_complete：发送导出完成通知（Task 7 阶段实现）
  */
 
-import { Process, Processor } from '@nestjs/bull'
+import { Processor, WorkerHost } from '@nestjs/bullmq'
 import { Logger } from '@nestjs/common'
-import { Job } from 'bull'
+import { Job } from 'bullmq'
 
-// 邮件任务的数据结构
 interface EmailJobData {
-  type: 'registration_confirmed' | 'status_changed'
-  userEmail: string
-  eventTitle: string
-  registrationId: string
+  type: 'registration_confirmed' | 'status_changed' | 'export_complete'
+  to: string
+  subject?: string
+  data: Record<string, unknown>
 }
 
+// Task 8（P2）：接入真实 SMTP 邮件发送，目前只打日志占位
 @Processor('email')
-export class EmailProcessor {
+export class EmailProcessor extends WorkerHost {
   private readonly logger = new Logger(EmailProcessor.name)
 
-  @Process('registration_confirmed')
-  async handleRegistrationConfirmed(job: Job<EmailJobData>): Promise<void> {
-    const { userEmail, eventTitle, registrationId } = job.data
+  async process(job: Job<EmailJobData>): Promise<void> {
+    const { type, to, data } = job.data
 
-    // Phase 1：暂时只打日志，邮件服务配置完善后替换为真实发送逻辑
-    // 后续接入 Nodemailer：
-    //   await transporter.sendMail({ to: userEmail, subject: `${eventTitle} 报名成功`, ... })
-    this.logger.log(
-      `[邮件队列] 报名确认邮件待发送 → ${userEmail}，活动：${eventTitle}，报名ID：${registrationId}`,
-    )
-  }
-
-  @Process('status_changed')
-  async handleStatusChanged(job: Job<EmailJobData>): Promise<void> {
-    const { userEmail, eventTitle } = job.data
-    this.logger.log(`[邮件队列] 状态变更通知待发送 → ${userEmail}，活动：${eventTitle}`)
+    switch (type) {
+      case 'registration_confirmed':
+        // TODO Task 8: 用 Nodemailer 发送报名确认邮件
+        this.logger.log(`[TODO] 报名确认邮件 → ${to}，活动：${data.eventTitle}`)
+        break
+      case 'status_changed':
+        // TODO Task 8: 发送审批状态变更通知
+        this.logger.log(`[TODO] 状态变更邮件 → ${to}，新状态：${data.status}`)
+        break
+      case 'export_complete':
+        // TODO Task 7: 发送导出完成通知
+        this.logger.log(`[TODO] 导出完成邮件 → ${to}`)
+        break
+      default:
+        this.logger.warn(`未知邮件类型：${type}`)
+    }
   }
 }

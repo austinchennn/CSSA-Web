@@ -1,32 +1,42 @@
 {
-  "_comment": "Strapi Content Type Schema — Events (Collection Type)",
-  "_purpose": "当前/报名活动表。form_schema JSON 字段是整个项目的核心设计——它驱动前台动态表单渲染和后台动态表头生成。",
-  "_field_definitions": {
-    "kind": "collectionType",
-    "collectionName": "events",
-    "attributes": {
-      "title": { "type": "string", "required": true, "description": "活动标题" },
-      "start_time": { "type": "datetime", "required": true, "description": "活动举办时间" },
-      "capacity": { "type": "integer", "required": false, "description": "报名人数上限，null 表示不限人数" },
-      "form_schema": {
-        "type": "json",
-        "required": true,
-        "description": "动态表单结构 JSON 数组。格式：[{ field, label, type, required, options? }]。前台根据此渲染报名表单，后台根据此生成表格列头。"
-      },
-      "status": {
-        "type": "enumeration",
-        "enum": ["upcoming", "active", "closed"],
-        "default": "upcoming",
-        "required": true,
-        "description": "活动状态控制。upcoming=待开始，active=报名中，closed=已关闭。后台 Toggle Switch 直接修改此字段。"
-      },
-      "registrations": {
-        "type": "relation",
-        "relation": "oneToMany",
-        "target": "api::registration.registration",
-        "mappedBy": "event",
-        "description": "反向关联：该活动的所有报名记录"
-      }
+  "kind": "collectionType",
+  "collectionName": "events",
+  "info": {
+    "singularName": "event",
+    "pluralName": "events",
+    "displayName": "活动",
+    "description": "当前及待办活动，含动态报名表单"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "start_time": {
+      "type": "datetime",
+      "required": true
+    },
+    "capacity": {
+      "type": "integer"
+    },
+    "form_schema": {
+      "type": "json",
+      "required": true
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["upcoming", "active", "closed"],
+      "default": "upcoming",
+      "required": true
+    },
+    "registrations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::registration.registration",
+      "mappedBy": "event"
     }
   },
 

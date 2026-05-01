@@ -1,19 +1,33 @@
 {
-  "_comment": "Strapi Content Type Schema — Departments (Collection Type)",
-  "_field_definitions": {
-    "kind": "collectionType",
-    "collectionName": "departments",
-    "attributes": {
-      "name": { "type": "string", "unique": true, "required": true, "description": "部门名称，全局唯一" },
-      "leader_name": { "type": "string", "required": true, "description": "现任负责人/部长姓名" },
-      "introduction": { "type": "text", "required": false, "description": "部门职能描述，前台 Team 页和后台部门简介展示" },
-      "members": {
-        "type": "relation",
-        "relation": "oneToMany",
-        "target": "api::member.member",
-        "mappedBy": "department",
-        "description": "反向关联：该部门下的所有成员（通过 Members.dept_id 建立）"
-      }
+  "kind": "collectionType",
+  "collectionName": "departments",
+  "info": {
+    "singularName": "department",
+    "pluralName": "departments",
+    "displayName": "部门",
+    "description": "学生会各职能部门"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "leader_name": {
+      "type": "string",
+      "required": true
+    },
+    "introduction": {
+      "type": "text"
+    },
+    "members": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::member.member",
+      "mappedBy": "department"
     }
   },
 

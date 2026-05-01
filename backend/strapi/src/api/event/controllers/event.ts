@@ -1,35 +1,43 @@
 /**
- * ============================================================
- * FILE: backend/strapi/src/api/event/controllers/event.ts
- * ============================================================
+ * event controller
  *
- * 【作用】
- * Events 内容类型控制器。核心扩展点：
- * 1. 可在 find() 中附加每个活动的报名人数统计（count registrations）
- * 2. 可在 create/update 时校验 form_schema 格式是否合法
- *
- * 【默认路由】
- * GET    /api/events         → find()
- *   - 常用参数：?filters[status][$eq]=active，?sort=start_time:desc
- * GET    /api/events/:id     → findOne()
- * POST   /api/events         → create()（仅管理员）
- * PUT    /api/events/:id     → update()（修改 status 用于开关报名通道）
- * DELETE /api/events/:id     → delete()
- *
- * 【扩展逻辑】
- * find() 覆盖：
- *   - 调用默认 find() 获取活动列表
- *   - 对每个活动追加 registrationCount 字段（通过 countRelated）
- *   - 用于后台列表页的报名进度显示
- *
- * create()/update() 覆盖（可选）：
- *   - 校验 ctx.request.body.data.form_schema 是否为合法 FormField[] 格式
- *   - 不合法时返回 400 Bad Request + 详细错误信息
- *
- * 【权限配置】
- * - Public：find, findOne（前台获取 active 活动及 form_schema）
- * - Authenticated：create, update, delete
+ * 覆盖 find()，在每个活动数据里追加实时报名人数（registrationCount）。
+ * 后台列表页用此字段展示报名进度，避免前端再发一次统计请求。
  */
-
 import { factories } from '@strapi/strapi'
-export default factories.createCoreController('api::event.event')
+
+export default factories.createCoreController(
+  'api::event.event',
+  ({ strapi }) => ({
+
+    async find(ctx: any) {
+      // 先调用默认 find 获取活动列表和分页信息
+      const { data, meta } = await super.find(ctx)
+
+      // 为每个活动并行查询报名人数，Promise.all 避免串行 N+1 查询
+      const enriched = await Promise.all(
+        data.map(async (event: any) => {
+          // 只统计未取消的报名，已取消的不计入人数
+          const count = await strapi.entityService.count(
+            'api::registration.registration',
+            {
+              filters: {
+                event: { id: event.id },
+                status: { $ne: 'cancelled' },
+              },
+            }
+          )
+          return {
+            ...event,
+            attributes: {
+              ...event.attributes,
+              registrationCount: count, // 追加到 attributes，前端直接读取
+            },
+          }
+        })
+      )
+
+      return { data: enriched, meta }
+    },
+  })
+)

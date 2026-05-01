@@ -27,23 +27,22 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common'
-import { InjectQueue } from '@nestjs/bull'
-import { Queue } from 'bull'
+import { ConfigService } from '@nestjs/config'
 import Redis from 'ioredis'
 
-// 每分钟最多 5 次报名提交（同一 IP）
-const RATE_LIMIT     = 5
+// 每个 IP 在 WINDOW_SECONDS 内最多提交 RATE_LIMIT 次
+const RATE_LIMIT = 5
 const WINDOW_SECONDS = 60
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {
   private readonly redis: Redis
 
-  constructor() {
-    // 直接连接本地 Redis（与 BullMQ 共用同一个 Redis 实例）
+  constructor(private config: ConfigService) {
+    // 独立 Redis 连接，复用 BullMQ 的 Redis 配置
     this.redis = new Redis({
-      host: process.env.REDIS_HOST ?? 'localhost',
-      port: Number(process.env.REDIS_PORT ?? 6379),
+      host: config.get('REDIS_HOST', 'localhost'),
+      port: config.get<number>('REDIS_PORT', 6379),
     })
   }
 
@@ -62,14 +61,14 @@ export class RateLimitGuard implements CanActivate {
     // INCR 是原子操作：先加 1 再返回新值，避免并发竞争
     const count = await this.redis.incr(key)
 
+    // 首次请求时设置过期时间（60 秒后自动清零）
     if (count === 1) {
-      // 第一次请求时设置过期时间（60 秒后自动清零）
       await this.redis.expire(key, WINDOW_SECONDS)
     }
 
     if (count > RATE_LIMIT) {
       throw new HttpException(
-        { message: '提交过于频繁，请 60 秒后再试', statusCode: 429 },
+        { message: `提交过于频繁，请 ${WINDOW_SECONDS} 秒后再试`, statusCode: 429 },
         HttpStatus.TOO_MANY_REQUESTS,
       )
     }

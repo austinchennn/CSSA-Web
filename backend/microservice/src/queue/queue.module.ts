@@ -14,41 +14,35 @@
  *   - src/app.module.ts : 在 AppModule.imports 中注册
  *
  * 【模块配置】
- * - email 队列：报名成功后异步发送确认邮件
- * - export 队列：管理员导出 CSV 时异步生成文件
+ * BullModule.forRootAsync — 从 ConfigService 动态读取 Redis host/port
+ * BullModule.registerQueue — 注册 email 和 export 两个队列
+ * exports: [BullModule]   — 导出供 RegistrationModule 注入队列
  */
-
 import { Module } from '@nestjs/common'
-import { BullModule } from '@nestjs/bull'
-import { ConfigModule, ConfigService } from '@nestjs/config'
+import { BullModule } from '@nestjs/bullmq'
+import { ConfigService } from '@nestjs/config'
 import { EmailProcessor } from './email.processor'
 import { ExportProcessor } from './export.processor'
 
 @Module({
   imports: [
-    // 全局配置 Redis 连接（所有队列共享同一个 Redis 实例）
     BullModule.forRootAsync({
-      imports: [ConfigModule],
+      // 从环境变量读取 Redis 地址，开发/生产环境无缝切换
       useFactory: (config: ConfigService) => ({
-        redis: {
-          host: config.get<string>('REDIS_HOST', 'localhost'),
+        connection: {
+          host: config.get('REDIS_HOST', 'localhost'),
           port: config.get<number>('REDIS_PORT', 6379),
         },
       }),
       inject: [ConfigService],
     }),
-
-    // 注册两个独立队列
     BullModule.registerQueue(
-      { name: 'email' },    // 邮件发送队列
-      { name: 'export' },   // 数据导出队列
+      { name: 'email' },   // 发送报名确认邮件
+      { name: 'export' },  // 异步导出 CSV（Task 7/P2 阶段实现）
     ),
   ],
-
-  // 挂载处理器：BullMQ 会自动将任务分配给对应的 Processor
   providers: [EmailProcessor, ExportProcessor],
-
-  // 导出 BullModule，让 RegistrationModule 可以注入 email 队列
+  // 导出 BullModule 供 RegistrationModule 使用 InjectQueue('email')
   exports: [BullModule],
 })
 export class QueueModule {}

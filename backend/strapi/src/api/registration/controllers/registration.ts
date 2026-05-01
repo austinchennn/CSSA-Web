@@ -1,41 +1,69 @@
 /**
- * ============================================================
- * FILE: backend/strapi/src/api/registration/controllers/registration.ts
- * ============================================================
+ * registration controller
  *
- * 【作用】
- * Registrations 内容类型控制器。最关键的扩展点：
- * 1. create() 需要校验对应活动状态是否为 'active'（关闭的活动不允许提交报名）
- * 2. create() 需要校验活动是否已达容量上限（capacity 字段）
- * 3. create() 实际上通过 NestJS 微服务代理（Rate Limit 在微服务层拦截），
- *    Strapi 层作为最终写入层
- *
- * 【默认路由】
- * GET    /api/registrations         → find()（仅管理员，查看所有报名）
- *   - ?filters[event][id][$eq]={eventId} 按活动筛选
- * GET    /api/registrations/:id     → findOne()
- * POST   /api/registrations         → create()（Public，前台提交报名）
- * PUT    /api/registrations/:id     → update()（管理员审批，修改 status）
- * DELETE /api/registrations/:id     → delete()（管理员清理）
- *
- * 【create() 扩展逻辑】
- * async create(ctx): Promise<void>
- *   - 从 ctx.request.body.data.event 获取 eventId
- *   - 调用 strapi.entityService.findOne('api::event.event', eventId) 获取活动
- *   - 若 event.status !== 'active'：返回 400 "报名通道已关闭"
- *   - 若 event.capacity 存在：
- *       统计当前 registrations 数量（COUNT WHERE event_id = eventId AND status != 'cancelled'）
- *       若已达上限：返回 400 "报名人数已满"
- *   - 校验通过：调用 super.create(ctx) 写入 Registrations 表
- *
- * 【update() 扩展逻辑（审批操作）】
- * - 仅允许修改 status 字段（防止管理员意外改动 user_info）
- * - 状态流转约束：pending → confirmed / cancelled（不允许 confirmed → pending 等回滚）
- *
- * 【权限配置】
- * - Public：create（前台提交报名）
- * - Authenticated：find, findOne, update, delete
+ * 覆盖两个方法：
+ * - create()：校验活动状态和容量，防止向关闭或已满的活动提交报名
+ * - update()：只允许修改 status 字段，防止管理员误改用户填写的 user_info
  */
-
 import { factories } from '@strapi/strapi'
-export default factories.createCoreController('api::registration.registration')
+
+export default factories.createCoreController(
+  'api::registration.registration',
+  ({ strapi }) => ({
+
+    async create(ctx: any) {
+      const { event: eventId } = (ctx.request.body as any).data
+
+      // 查询活动详情，确认其是否存在及当前状态
+      const event = await strapi.entityService.findOne(
+        'api::event.event',
+        eventId,
+        { populate: ['registrations'] }
+      )
+
+      if (!event) {
+        return ctx.badRequest('活动不存在')
+      }
+
+      // 活动状态必须为 active 才可报名，upcoming/closed 均拒绝
+      if (event.status !== 'active') {
+        return ctx.badRequest('报名通道已关闭，该活动当前不接受报名')
+      }
+
+      // capacity 为 null 表示不限人数，跳过容量检查
+      if (event.capacity !== null) {
+        const currentCount = await strapi.entityService.count(
+          'api::registration.registration',
+          {
+            filters: {
+              event: { id: eventId },
+              status: { $ne: 'cancelled' }, // 已取消的不占用名额
+            },
+          }
+        )
+
+        if (currentCount >= event.capacity) {
+          return ctx.badRequest(`报名人数已满（上限 ${event.capacity} 人）`)
+        }
+      }
+
+      // 以上校验全部通过，交给默认 create 写入数据库
+      return super.create(ctx)
+    },
+
+    async update(ctx: any) {
+      const body = (ctx.request.body as any).data || {}
+      const submittedFields = Object.keys(body)
+      // 审批操作只允许改 status，防止管理员界面误操作覆盖用户填写的 user_info
+      const forbidden = submittedFields.filter((k) => k !== 'status')
+
+      if (forbidden.length > 0) {
+        return ctx.badRequest(
+          `不允许修改字段：${forbidden.join(', ')}。审批操作只能修改 status`
+        )
+      }
+
+      return super.update(ctx)
+    },
+  })
+)
