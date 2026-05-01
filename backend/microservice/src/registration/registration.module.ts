@@ -19,15 +19,13 @@
  */
 import { Module } from '@nestjs/common'
 import { HttpModule } from '@nestjs/axios'
-import { BullModule } from '@nestjs/bullmq'
 import { RegistrationController } from './registration.controller'
 import { RegistrationService } from './registration.service'
 import { RateLimitGuard } from '../common/guards/rate-limit.guard'
 
 @Module({
   imports: [
-    HttpModule,                                   // 提供 HttpService 调用 Strapi
-    BullModule.registerQueue({ name: 'email' }),  // 注入 email 队列
+    HttpModule, // 提供 HttpService 调用 Strapi
   ],
   controllers: [RegistrationController],
   providers: [RegistrationService, RateLimitGuard],

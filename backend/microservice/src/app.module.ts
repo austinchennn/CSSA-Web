@@ -30,12 +30,10 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { RegistrationModule } from './registration/registration.module'
-import { QueueModule } from './queue/queue.module'
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }), // 全局环境变量，无需每个模块单独导入
-    QueueModule,        // 必须在 RegistrationModule 前注册，因为后者依赖 email 队列
     RegistrationModule, // 报名提交 + Rate Limit 防刷守卫
   ],
 })

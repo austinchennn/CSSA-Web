@@ -89,12 +89,9 @@ NestJS 用「模块」来组织代码，和 Next.js 的「页面」概念类似�
 ```
 AppModule（根）
   ├── ConfigModule（全局，读环境变量）
-  ├── RegistrationModule
-  │     ├── RegistrationController（处理 HTTP 请求）
-  │     └── RegistrationService（业务逻辑）
-  └── QueueModule
-        ├── EmailProcessor（处理邮件任务）
-        └── ExportProcessor（处理导出任务）
+  └── RegistrationModule
+        ├── RegistrationController（处理 HTTP 请求）
+        └── RegistrationService（业务逻辑）
 ```
 
 每个模块都是一个 `@Module()` 装饰的类，  

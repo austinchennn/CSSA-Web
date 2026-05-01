@@ -149,8 +149,8 @@
 |PostgreSQL|核心数据库|存储全站结构化数据与表单 JSON Schema。|
 |TypeScript|开发语言|保证服务端扩展逻辑的类型安全。|
 
-|NestJS / Fastify|逻辑微服务|承载复杂后置业务（如防刷、鉴权拦截等）。|
-|BullMQ + Redis|异步任务队列|削峰填谷，处理大批量导出或邮件发送等耗时任务。|
+|NestJS / Fastify|逻辑微服务|承载复杂后置业务（防刷限流、报名写入、CSV 同步导出）。|
+|Redis|限流缓存|Rate Limit Guard 通过 ioredis 直连，INCR + EXPIRE 实现滑动窗口限流。|
 
 ---
 

@@ -6,14 +6,12 @@
  * 【作用】
  * 报名提交的业务逻辑层。校验活动状态（是否开放报名）、
  * 容量检查，然后将数据转发到 Strapi REST API 写入 Registrations 表。
- * 同时触发 BullMQ 队列，处理异步后置任务（如确认邮件）。
  *
  * 【依赖关系】
  * Imports from:
  *   - @nestjs/common        : Injectable, BadRequestException, ServiceUnavailableException
  *   - @nestjs/config        : ConfigService（读取 STRAPI_URL、STRAPI_API_TOKEN）
  *   - @nestjs/axios         : HttpService（HTTP 请求 Strapi API）
- *   - @nestjs/bullmq        : InjectQueue
  *   - src/registration/dto/create-registration.dto.ts
  *
  * Used by:
@@ -32,8 +30,6 @@ import {
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { HttpService } from '@nestjs/axios'
-import { InjectQueue } from '@nestjs/bullmq'
-import { Queue } from 'bullmq'
 import { firstValueFrom } from 'rxjs'
 import { CreateRegistrationDto } from './dto/create-registration.dto'
 
@@ -46,7 +42,6 @@ export class RegistrationService {
   constructor(
     private config: ConfigService,
     private http: HttpService,
-    @InjectQueue('email') private emailQueue: Queue,
   ) {
     // 从环境变量读取 Strapi 地址和 Token，禁止在代码里写死
     this.strapiUrl = config.get('STRAPI_URL', 'http://localhost:1337')
@@ -103,16 +98,6 @@ export class RegistrationService {
     }
 
     const registrationId = String(registration.id)
-
-    // 4. 异步发送确认邮件（若 userInfo 包含 email 字段），不阻塞响应
-    const userEmail = dto.userInfo?.email as string | undefined
-    if (userEmail) {
-      await this.emailQueue.add('registration_confirmed', {
-        type: 'registration_confirmed',
-        to: userEmail,
-        data: { eventTitle: event.title, registrationId },
-      })
-    }
 
     this.logger.log(`报名成功 — ID: ${registrationId}, 活动: ${event.title}`)
     return { id: registrationId }

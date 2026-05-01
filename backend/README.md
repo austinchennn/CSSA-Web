@@ -134,8 +134,8 @@ npm run start:dev
 ### 定位
 
 - **核心 CMS**：Strapi（Node.js）—— 提供数据建模与可视化后台，自动生成 RESTful / GraphQL API
-- **逻辑微服务**：NestJS / Fastify —— 承载复杂后置业务（防刷、鉴权拦截等）
-- **异步任务队列**：BullMQ + Redis —— 处理招新高峰期大批量报名入库、数据导出、邮件通知等耗时任务
+- **逻辑微服务**：NestJS / Fastify —— 承载复杂后置业务（Rate Limit 防刷、报名写入、CSV 同步导出）
+- **Redis**：Rate Limit Guard 通过 ioredis 直连，INCR + EXPIRE 实现滑动窗口限流
 - **数据统计引擎**：基于 `Registrations` 表，通过 SQL COUNT/聚合函数为管理层生成数据看板
 
 ### 业务数据流
@@ -252,9 +252,8 @@ npm run start:dev
 | Strapi | 4+ | Headless CMS，数据建模，自动生成 REST/GraphQL API |
 | PostgreSQL | 15+ | 核心数据库，存储所有结构化数据 |
 | TypeScript | 5+ | 服务端扩展逻辑类型安全 |
-| NestJS / Fastify | — | 逻辑微服务：Rate Limit、鉴权拦截等 |
-| BullMQ | — | 异步任务队列 |
-| Redis | 7+ | BullMQ 消息中间件 |
+| NestJS / Fastify | — | 逻辑微服务：Rate Limit、报名写入、CSV 导出 |
+| Redis | 7+ | Rate Limit Guard 限流缓存（ioredis 直连） |
 
 ---
 
@@ -284,11 +283,9 @@ backend/
 │   │   │   ├── registration.controller.ts
 │   │   │   ├── registration.service.ts
 │   │   │   └── rate-limit.guard.ts  # 表单防刷守卫
-│   │   ├── auth/
-│   │   │   └── auth.guard.ts        # 鉴权拦截
-│   │   └── queue/
-│   │       ├── queue.module.ts      # BullMQ 队列模块
-│   │       └── export.processor.ts  # CSV 导出异步处理器
+│   │   └── common/
+│   │       └── guards/
+│   │           └── rate-limit.guard.ts  # 防刷限流守卫
 │   └── package.json
 └── docker-compose.yml               # PostgreSQL + Redis 本地环境
 ```
