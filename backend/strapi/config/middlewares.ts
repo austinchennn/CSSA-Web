@@ -17,7 +17,7 @@ export default [
       contentSecurityPolicy: {
         useDefaults: true,
         directives: {
-          'connect-src': ["'self'", 'https:'\],
+          'connect-src': ["'self'", 'https:'],
           // 允许从本地和 Cloudinary 加载图片（生产环境使用 Cloudinary 时需要）
           'img-src': ["'self'", 'data:', 'blob:', 'res.cloudinary.com'],
           'media-src': ["'self'", 'data:', 'blob:'],
