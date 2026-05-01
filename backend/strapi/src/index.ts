@@ -41,6 +41,9 @@ const PUBLIC_PERMISSIONS = [
   'api::past-event.past-event.findOne',
   // Registration 只开放 create：前台可提交，但不能查看别人的报名记录
   'api::registration.registration.create',
+  // Sponsor：前台展示赞助商 Logo，只需 find/findOne
+  'api::sponsor.sponsor.find',
+  'api::sponsor.sponsor.findOne',
 ]
 
 async function configurePublicPermissions(strapi: any): Promise<void> {
