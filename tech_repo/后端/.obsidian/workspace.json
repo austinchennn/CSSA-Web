@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Mike任务SOP.md",
+                "file": "联调说明-Simon（后台管理前端）.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Mike任务SOP"
+              "title": "联调说明-Simon（后台管理前端）"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Mike任务SOP.md",
+                "file": "联调说明-Simon（后台管理前端）.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Mike任务SOP 的反向链接列表"
+              "title": "联调说明-Simon（后台管理前端） 的反向链接列表"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Mike任务SOP.md",
+                "file": "联调说明-Simon（后台管理前端）.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Mike任务SOP 的出链列表"
+              "title": "联调说明-Simon（后台管理前端） 的出链列表"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Mike任务SOP.md",
+                "file": "联调说明-Simon（后台管理前端）.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Mike任务SOP 的大纲"
+              "title": "联调说明-Simon（后台管理前端） 的大纲"
             }
           }
         ]
@@ -185,6 +185,28 @@
   },
   "active": "2d2a9a9f33ee5c45",
   "lastOpenFiles": [
-    "Mike任务SOP.pdf"
+    "联调说明-Simon（后台管理前端）.pdf",
+    "联调说明-Emilia（客户端前台）.md",
+    "联调说明-Emilia（客户端前台）.pdf",
+    "联调说明-Simon（后台管理前端）.md",
+    "Conflict-Summary.md",
+    "后端接口文档.md",
+    "依赖以及后端使用说明.md",
+    "Mike任务SOP.pdf",
+    "Mike任务SOP.md",
+    "Austin后续任务SOP.md",
+    "11-GraphQL扩展.md",
+    "10-NestJS微服务初始化.md",
+    "09-环境变量配置.md",
+    "08-Strapi项目初始化.md",
+    "07-GraphQL扩展.md",
+    "06-RateLimit和队列.md",
+    "05-报名模块.md",
+    "04-NestJS入口.md",
+    "03-ContentType数据表.md",
+    "02-Strapi配置.md",
+    "01-Docker本地环境.md",
+    "后端完成工作安排.md",
+    "学术部介绍.pdf"
   ]
 }
