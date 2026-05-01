@@ -13,23 +13,11 @@
  *   - @nestjs/common        : Injectable, BadRequestException, ServiceUnavailableException
  *   - @nestjs/config        : ConfigService（读取 STRAPI_URL、STRAPI_API_TOKEN）
  *   - @nestjs/axios         : HttpService（HTTP 请求 Strapi API）
- *   - @nestjs/bull          : InjectQueue
+ *   - @nestjs/bullmq        : InjectQueue
  *   - src/registration/dto/create-registration.dto.ts
  *
  * Used by:
  *   - src/registration/registration.controller.ts
- *
- * 【方法】
- * async create(dto: CreateRegistrationDto): Promise<{ id: string }>
- *   - 1. 调用 Strapi GET /api/events/{dto.eventId} 获取活动信息
- *       - 若活动 status !== 'active'：throw BadRequestException('报名通道已关闭')
- *       - 若活动 capacity 存在：
- *           调用 Strapi GET /api/registrations?count=true&filters[event][id][$eq]={id}
- *           若已达上限：throw BadRequestException('报名人数已满')
- *   - 2. 调用 Strapi POST /api/registrations 写入报名数据
- *       - 请求头携带 STRAPI_API_TOKEN（后端内部通信使用全权限 Token）
- *   - 3. 向 BullMQ 'email' 队列添加任务：{ type: 'registration_confirmed', registrationId, userEmail? }
- *   - 4. 返回新创建的 registration id
  *
  * 【关键变量】
  * - STRAPI_URL: string      — Strapi 内部服务地址（如 http://localhost:1337）
@@ -60,6 +48,7 @@ export class RegistrationService {
     private http: HttpService,
     @InjectQueue('email') private emailQueue: Queue,
   ) {
+    // 从环境变量读取 Strapi 地址和 Token，禁止在代码里写死
     this.strapiUrl = config.get('STRAPI_URL', 'http://localhost:1337')
     this.strapiToken = config.get('STRAPI_API_TOKEN', '')
   }
@@ -82,7 +71,7 @@ export class RegistrationService {
       throw new BadRequestException('报名通道已关闭，该活动当前不接受报名')
     }
 
-    // 2. 检查活动容量（capacity 为 null 表示不限人数）
+    // 2. 如果活动设置了人数上限，检查是否已满（capacity 为 null 表示不限人数）
     if (event.capacity !== null && event.capacity !== undefined) {
       const countResp = await firstValueFrom(
         this.http.get(
@@ -96,7 +85,7 @@ export class RegistrationService {
       }
     }
 
-    // 3. 转发到 Strapi 写入报名记录
+    // 3. 向 Strapi 写入报名记录
     let registration: any
     try {
       const resp = await firstValueFrom(
@@ -115,7 +104,7 @@ export class RegistrationService {
 
     const registrationId = String(registration.id)
 
-    // 4. 异步发送确认邮件（若 userInfo 包含 email 字段）
+    // 4. 异步发送确认邮件（若 userInfo 包含 email 字段），不阻塞响应
     const userEmail = dto.userInfo?.email as string | undefined
     if (userEmail) {
       await this.emailQueue.add('registration_confirmed', {
@@ -130,11 +119,11 @@ export class RegistrationService {
   }
 
   // 导出某活动所有报名记录为 CSV 字符串
-  // 列头由 form_schema 的 label 字段决定，数据行从 user_info 取对应 key
+  // 列头由 form_schema 的 label 字段决定，数据行从 user_info 取对应 field 的 key
   async exportRegistrations(eventId: string): Promise<string> {
     const headers = { Authorization: `Bearer ${this.strapiToken}` }
 
-    // 1. 获取活动 form_schema（CSV 列头定义）
+    // 1. 获取活动的 form_schema（CSV 列头定义）
     const eventResp = await firstValueFrom(
       this.http.get(`${this.strapiUrl}/api/events/${eventId}`, { headers })
     ).catch(() => { throw new BadRequestException('活动不存在') })

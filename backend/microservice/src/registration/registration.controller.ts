@@ -8,22 +8,11 @@
  * 经过 Rate Limit 拦截守卫后，转发到 Strapi API 写入数据库。
  * 这是项目中唯一需要公开且承受高并发的关键写接口。
  *
- * 【依赖关系】
- * Imports from:
- *   - @nestjs/common            : Controller, Post, Body, UseGuards, HttpCode
- *   - src/common/guards/rate-limit.guard.ts : RateLimitGuard
- *   - src/registration/registration.service.ts : RegistrationService
- *   - src/registration/dto/create-registration.dto.ts : CreateRegistrationDto
- *
- * Used by:
- *   - NestJS 路由系统（被 registration.module.ts 注册）
- *   - 客户端 lib/graphql/mutations/registration.mutations.ts 最终调用（经 Strapi 代理）
- *
  * 【路由】
  * @Controller('registrations')
  * POST /api/v1/registrations
- *   - @UseGuards(RateLimitGuard)  — 请求进入前先经过防刷守卫
- *   - @HttpCode(201)              — 成功时返回 201
+ *   - @UseGuards(RateLimitGuard)  — 请求进入前先经过防刷守卫（超频返回 429）
+ *   - @HttpCode(HttpStatus.CREATED) — 成功时返回 201
  *   - 参数：@Body() dto: CreateRegistrationDto
  *   - 调用：registrationService.create(dto)
  *   - 返回：{ success: true, id: registrationId }
@@ -47,22 +36,23 @@ import {
   Query,
   UseGuards,
   HttpCode,
+  HttpStatus,
   BadRequestException,
   Res,
 } from '@nestjs/common'
 import type { Response } from 'express'
-import { RateLimitGuard } from '../common/guards/rate-limit.guard'
 import { RegistrationService } from './registration.service'
 import { CreateRegistrationDto } from './dto/create-registration.dto'
+import { RateLimitGuard } from '../common/guards/rate-limit.guard'
 
 @Controller('registrations')
 export class RegistrationController {
   constructor(private readonly registrationService: RegistrationService) {}
 
-  // POST /api/v1/registrations — 公开接口，前台提交报名
-  @Post('/')
-  @UseGuards(RateLimitGuard)
-  @HttpCode(201)
+  // POST /api/v1/registrations — 公开接口，用于前台提交报名
+  @Post()
+  @UseGuards(RateLimitGuard)       // 先经过防刷守卫，超频直接 429
+  @HttpCode(HttpStatus.CREATED)    // 成功返回 201 而非默认 200
   async create(@Body() dto: CreateRegistrationDto) {
     const result = await this.registrationService.create(dto)
     return { success: true, id: result.id }
@@ -79,6 +69,6 @@ export class RegistrationController {
     const csv = await this.registrationService.exportRegistrations(eventId)
     res.setHeader('Content-Type', 'text/csv; charset=utf-8')
     res.setHeader('Content-Disposition', `attachment; filename="registrations-${eventId}.csv"`)
-    res.send('﻿' + csv)
+    res.send('\uFEFF' + csv)
   }
 }

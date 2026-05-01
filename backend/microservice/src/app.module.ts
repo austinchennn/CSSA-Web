@@ -21,7 +21,7 @@
  * @Module({
  *   imports: [
  *     ConfigModule.forRoot({ isGlobal: true }),  — 全局环境变量，无需每个模块导入
- *     QueueModule,        — BullMQ 队列（异步导出、邮件发送）
+ *     QueueModule,        — BullMQ Redis 队列（email / export）
  *     RegistrationModule, — 报名提交 + Rate Limit 防刷
  *   ],
  * })
@@ -34,10 +34,9 @@ import { QueueModule } from './queue/queue.module'
 
 @Module({
   imports: [
-    // isGlobal: true 使 ConfigService 在所有模块可直接注入，无需再 import ConfigModule
-    ConfigModule.forRoot({ isGlobal: true }),
-    QueueModule,
-    RegistrationModule,
+    ConfigModule.forRoot({ isGlobal: true }), // 全局环境变量，无需每个模块单独导入
+    QueueModule,        // 必须在 RegistrationModule 前注册，因为后者依赖 email 队列
+    RegistrationModule, // 报名提交 + Rate Limit 防刷守卫
   ],
 })
 export class AppModule {}

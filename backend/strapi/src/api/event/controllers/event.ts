@@ -10,7 +10,7 @@ export default factories.createCoreController(
   'api::event.event',
   ({ strapi }) => ({
 
-    async find(ctx) {
+    async find(ctx: any) {
       // 先调用默认 find 获取活动列表和分页信息
       const { data, meta } = await super.find(ctx)
 

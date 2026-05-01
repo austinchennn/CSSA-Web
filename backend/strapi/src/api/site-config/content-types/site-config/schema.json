@@ -5,7 +5,7 @@
     "singularName": "site-config",
     "pluralName": "site-configs",
     "displayName": "全站配置",
-    "description": "全站唯一配置项，包含首页文案和联系方式"
+    "description": "全站唯一配置项：首页文案、联系方式、社交媒体链接、About/Join 简介"
   },
   "options": {
     "draftAndPublish": false
@@ -20,8 +20,14 @@
     "contact_email": {
       "type": "string"
     },
-    "instagram_url": {
-      "type": "string"
+    "social_links": {
+      "type": "json"
+    },
+    "about_description": {
+      "type": "text"
+    },
+    "join_us_description": {
+      "type": "text"
     }
   }
 }

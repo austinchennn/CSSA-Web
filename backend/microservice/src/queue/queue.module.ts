@@ -10,19 +10,13 @@
  * 避免阻塞 HTTP 响应。
  *
  * 【依赖关系】
- * Imports from:
- *   - @nestjs/bullmq          : BullModule（NestJS BullMQ 集成）
- *   - src/queue/export.processor.ts : ExportProcessor
- *   - src/queue/email.processor.ts  : EmailProcessor
- *   - @nestjs/config                : ConfigService（读取 Redis 配置）
- *
  * Used by:
  *   - src/app.module.ts : 在 AppModule.imports 中注册
  *
  * 【模块配置】
  * BullModule.forRootAsync — 从 ConfigService 动态读取 Redis host/port
  * BullModule.registerQueue — 注册 email 和 export 两个队列
- * exports: [BullModule]   — 导出供 RegistrationService 注入队列
+ * exports: [BullModule]   — 导出供 RegistrationModule 注入队列
  */
 import { Module } from '@nestjs/common'
 import { BullModule } from '@nestjs/bullmq'

@@ -34,28 +34,32 @@ import { NestFactory } from '@nestjs/core'
 import { ValidationPipe } from '@nestjs/common'
 import { AppModule } from './app.module'
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule)
 
-  // 所有路由统一加 /api/v1 前缀
+  // 全局路由前缀：所有接口以 /api/v1 开头
   app.setGlobalPrefix('api/v1')
 
-  // 自动校验请求体（class-validator 装饰器），whitelist 过滤掉 DTO 未声明的字段
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }))
+  // 全局请求体校验：DTO 上的装饰器（class-validator）自动生效
+  // whitelist: true 表示自动剥离 DTO 中未声明的多余字段，防止注入攻击
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
 
-  // CORS：只允许来自前台和后台前端的跨域请求
+  // CORS 配置：允许前台和后台前端跨域调用
   app.enableCors({
     origin: [
-      process.env.CLIENT_URL || 'http://localhost:3000',
-      process.env.ADMIN_FRONTEND_URL || 'http://localhost:3001',
-    ],
+      'http://localhost:3000',          // 本地客户端前台
+      'http://localhost:3001',          // 本地后台前端
+      process.env.CLIENT_URL,          // 生产客户端域名
+      process.env.ADMIN_FRONTEND_URL,  // 生产后台域名
+    ].filter(Boolean) as string[],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
   })
 
-  const port = process.env.PORT || 3002
+  // 启动服务，端口 3002（Strapi 占 1337，Next.js 占 3000/3001）
+  const port = process.env.PORT ?? 3002
   await app.listen(port)
-  console.log(`微服务已启动，端口：${port}`)
+  console.log(`微服务启动成功，端口：${port}`)
 }
 
 bootstrap()
