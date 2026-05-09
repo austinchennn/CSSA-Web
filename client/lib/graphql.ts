@@ -265,3 +265,49 @@ export async function getPastEvents(): Promise<PastEvent[]> {
     return [];
   }
 }
+
+const PAST_EVENT_BY_ID_QUERY = `
+  query($id: ID!) {
+    pastEvent(id: $id) {
+      data {
+        id
+        attributes {
+          event_name
+          event_date
+          introduction
+          photo {
+            data {
+              attributes {
+                url
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export async function getPastEventById(id: string): Promise<PastEvent | null> {
+  try {
+    const data = await gqlFetch<{
+      pastEvent: StrapiSingleResponse<PastEventAttributes>;
+    }>(PAST_EVENT_BY_ID_QUERY, { id }, { revalidate: 60 });
+
+    const item = data.pastEvent?.data;
+    if (!item) return null;
+
+    return {
+      id: item.id,
+      title: item.attributes.event_name,
+      date: item.attributes.event_date,
+      description: item.attributes.introduction,
+      coverImageUrl: item.attributes.photo?.data?.attributes?.url
+        ? getStrapiImageUrl(item.attributes.photo.data.attributes.url)
+        : null,
+    };
+  } catch (error) {
+    console.error("Failed to fetch past event by id:", error);
+    return null;
+  }
+}
