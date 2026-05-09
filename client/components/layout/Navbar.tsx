@@ -1,41 +1,89 @@
-/**
- * ============================================================
- * FILE: client/components/layout/Navbar.tsx
- * ============================================================
- *
- * 【作用】
- * 全站顶部导航栏。固定在页面顶部（sticky/fixed），在桌面端显示水平导航链接，
- * 在移动端显示 Hamburger 按钮并控制 <MobileMenu> 抽屉的开关状态。
- * 滚动超过阈值后添加毛玻璃背景（backdrop-blur）增强层次感。
- *
- * 【依赖关系】
- * Imports from:
- *   - components/layout/MobileMenu.tsx   : 移动端全屏菜单抽屉
- *   - lib/constants/routes.ts            : NAV_LINKS 导航链接配置数组
- *   - lib/store/ui.store.ts              : useUIStore — 读写 isMobileMenuOpen 状态
- *   - next/link                          : 无刷新路由跳转
- *   - next/image                         : 渲染 CSSA Logo
- *   - next/navigation (usePathname)      : 判断当前路由，高亮 active 链接
- *
- * Exported to / Used by:
- *   - app/layout.tsx : 挂载于根 Layout，全站所有页面共用
- *
- * 【组件】
- * export default function Navbar(): JSX.Element
- *   - 使用 usePathname() 获取当前路径，与每个 NAV_LINK.href 对比确定 active 态
- *   - 使用 useEffect + window.scrollY 监听滚动，超过 80px 时设 isScrolled=true
- *   - isScrolled=true 时为 <nav> 添加 bg-card/90 + backdrop-blur-md + shadow-sm
- *   - 桌面端（md 以上）：水平渲染 NAV_LINKS，active 链接加 text-primary 和下划线
- *   - 移动端（md 以下）：隐藏链接列表，显示 Hamburger 图标按钮
- *   - 点击 Hamburger 调用 toggleMobileMenu() 切换抽屉状态
- *   - CSSA Logo 点击跳转首页 /
- *
- * 【关键变量 / State / Hooks】
- * - NAV_LINKS: NavLink[]        — 从 routes.ts 导入，含 { label, href } 对象
- * - isScrolled: boolean         — 本地 state，控制毛玻璃背景
- * - pathname: string            — usePathname() 返回值
- * - isMobileMenuOpen: boolean   — 来自 Zustand store
- * - toggleMobileMenu: () => void — 来自 Zustand store
- */
+"use client";
 
-export {}
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Menu, X } from "lucide-react";
+import { NAV_LINKS } from "@/lib/constants/routes";
+import { useUIStore } from "@/lib/store/ui.store";
+import MobileMenu from "./MobileMenu";
+import { cn } from "@/lib/utils/cn";
+
+export default function Navbar() {
+  const pathname = usePathname();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const { isMobileMenuOpen, toggleMobileMenu } = useUIStore();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 80);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <>
+      <nav
+        className={cn(
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+          isScrolled
+            ? "bg-card/90 backdrop-blur-md shadow-sm"
+            : "bg-transparent"
+        )}
+      >
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
+            {/* Logo */}
+            <Link
+              href="/"
+              className="text-xl font-bold text-primary hover:opacity-80 transition-opacity"
+            >
+              UTMCSSA
+            </Link>
+
+            {/* Desktop navigation */}
+            <div className="hidden md:flex items-center space-x-1">
+              {NAV_LINKS.map((link) => {
+                const isActive = pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={cn(
+                      "px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                      isActive
+                        ? "text-primary bg-accent"
+                        : "text-foreground hover:text-primary hover:bg-accent/50"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Mobile hamburger */}
+            <button
+              className="md:hidden p-2 rounded-md text-foreground hover:bg-accent transition-colors"
+              onClick={toggleMobileMenu}
+              aria-label={isMobileMenuOpen ? "关闭菜单" : "打开菜单"}
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Mobile menu overlay */}
+      <MobileMenu />
+
+      {/* Spacer to prevent content from hiding behind fixed nav */}
+      <div className="h-16" />
+    </>
+  );
+}

@@ -1,34 +1,34 @@
-/**
- * ============================================================
- * FILE: client/components/sections/home/FeaturedEvents.tsx
- * ============================================================
- *
- * 【作用】
- * 首页"精选活动"展示区域。横向卡片列表，展示最近 3-4 个往期活动的缩略图、
- * 活动名称和日期，作为活动页的入口预览。
- *
- * 【依赖关系】
- * Imports from:
- *   - lib/types/cms.types.ts                    : PastEvent 类型
- *   - components/sections/events/EventCard.tsx  : 复用活动卡片
- *   - components/shared/SectionHeader.tsx
- *   - components/shared/AnimatedSection.tsx
- *   - components/ui/Button.tsx                  : "查看全部活动" 跳转按钮
- *   - next/link
- *
- * Exported to / Used by:
- *   - app/page.tsx
- *
- * 【Props Interface】
- * interface FeaturedEventsProps
- *   - events: PastEvent[] — 最多 4 个精选往期活动数据
- *
- * 【组件】
- * export default function FeaturedEvents({ events }: FeaturedEventsProps): JSX.Element
- *   - 区域标题（左对齐）+ 右侧"查看全部"链接
- *   - 横向 Grid（lg:grid-cols-4, md:grid-cols-2, sm:grid-cols-1）
- *   - 每个活动渲染 <EventCard> 组件
- *   - 区域底部居中"查看全部活动"按钮，跳转 /events
- */
+import type { PastEvent } from "@/lib/types/cms.types";
+import EventCard from "@/components/sections/events/EventCard";
+import AnimatedSection from "@/components/shared/AnimatedSection";
 
-export {}
+interface FeaturedEventsProps {
+  events: PastEvent[];
+}
+
+export default function FeaturedEvents({ events }: FeaturedEventsProps) {
+  if (!events || events.length === 0) return null;
+
+  return (
+    <section className="py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <AnimatedSection>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
+              精选活动
+            </h2>
+            <div className="mt-4 mx-auto h-1 w-16 rounded-full bg-primary" />
+          </div>
+        </AnimatedSection>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {events.slice(0, 4).map((event, index) => (
+            <AnimatedSection key={event.id} delay={index * 0.1}>
+              <EventCard event={event} priority={index < 2} />
+            </AnimatedSection>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

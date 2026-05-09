@@ -1,41 +1,66 @@
-/**
- * ============================================================
- * FILE: client/app/events/page.tsx
- * ============================================================
- *
- * 【作用】
- * 活动展示页面（路由 `/events`）。分为两个展示区域：
- * 1. 精选活动卡片（Featured Events）—— 展示最近 3-4 个往期活动
- * 2. 竖向时间线（Timeline）—— 按时间倒序展示所有往期活动，
- *    支持鼠标滚动触发 Timeline 条目的进场动效
- *
- * 【依赖关系】
- * Imports from:
- *   - lib/graphql/queries/pastEvents.queries.ts  : fetchPastEvents(sort, limit)
- *   - lib/types/cms.types.ts                     : PastEvent 类型
- *   - components/sections/events/EventCard.tsx    : 精选活动卡片组件
- *   - components/sections/events/Timeline.tsx     : 时间线容器组件
- *   - components/shared/SectionHeader.tsx
- *
- * 【导出 Metadata】
- * export const metadata: Metadata
- *   - title: "Events"
- *
- * 【函数】
- * export default async function EventsPage(): Promise<JSX.Element>
- *   - 并行调用：
- *       fetchPastEvents({ sort: 'event_date:desc', limit: 4 }) → featuredEvents
- *       fetchPastEvents({ sort: 'event_date:desc' })           → allEvents（用于 Timeline）
- *   - 渲染精选活动卡片区域（水平 Grid 布局，最多 4 个）
- *   - 渲染 <Timeline events={allEvents} /> 时间线区域
- *   - 由于 photo 在数据库层强制必填，此处无需对图片做防空处理
- *
- * 【ISR 配置】
- * export const revalidate = 60
- *
- * 【关键变量】
- * - featuredEvents: PastEvent[] — 精选卡片数据（limit 4）
- * - allEvents: PastEvent[]     — 完整时间线数据
- */
+import type { Metadata } from "next";
+import { getPastEvents } from "@/lib/graphql";
+import EventCard from "@/components/sections/events/EventCard";
+import Timeline from "@/components/sections/events/Timeline";
+import SectionHeader from "@/components/shared/SectionHeader";
+import AnimatedSection from "@/components/shared/AnimatedSection";
 
-export {}
+export const metadata: Metadata = {
+  title: "Events",
+};
+
+export const revalidate = 60;
+
+export default async function EventsPage() {
+  const allEvents = await getPastEvents();
+
+  // Sort by date descending
+  const sortedEvents = [...allEvents].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
+  const featuredEvents = sortedEvents.slice(0, 4);
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <SectionHeader
+        title="活动"
+        subtitle="了解我们举办的精彩活动"
+      />
+
+      {sortedEvents.length === 0 ? (
+        <p className="text-center text-muted-foreground py-12">
+          暂无活动记录。
+        </p>
+      ) : (
+        <>
+          {/* Featured events cards */}
+          {featuredEvents.length > 0 && (
+            <AnimatedSection className="mb-16">
+              <h3 className="text-2xl font-bold text-foreground mb-8">
+                精选活动
+              </h3>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {featuredEvents.map((event, index) => (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    priority={index < 2}
+                  />
+                ))}
+              </div>
+            </AnimatedSection>
+          )}
+
+          {/* Timeline */}
+          <div className="mt-8">
+            <h3 className="text-2xl font-bold text-foreground mb-8 text-center">
+              活动时间线
+            </h3>
+            <Timeline events={sortedEvents} />
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

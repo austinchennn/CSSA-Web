@@ -1,41 +1,48 @@
-/**
- * ============================================================
- * FILE: client/components/sections/events/EventCard.tsx
- * ============================================================
- *
- * 【作用】
- * 活动展示卡片（精选卡片区域使用）。展示单个往期活动的封面图、
- * 活动名称、举办日期。同时被首页 FeaturedEvents 区域复用。
- * 由于数据库层强制 photo 字段必填，此组件无需处理图片缺失情况。
- *
- * 【依赖关系】
- * Imports from:
- *   - lib/types/cms.types.ts  : PastEvent 类型
- *   - lib/utils/formatDate.ts : formatEventDate() 日期格式化
- *   - components/ui/Card.tsx  : Card 容器
- *   - next/image              : 活动封面图（必含 alt）
- *
- * Exported to / Used by:
- *   - components/sections/home/FeaturedEvents.tsx
- *   - app/events/page.tsx（精选区域）
- *
- * 【Props Interface】
- * interface EventCardProps
- *   - event: PastEvent — 含 id, event_name, photo, event_date, introduction
- *   - priority?: boolean — 是否设置 Image priority（首屏卡片设为 true）
- *
- * 【组件】
- * export default function EventCard({ event, priority }: EventCardProps): JSX.Element
- *   - 卡片容器：rounded-lg overflow-hidden，hover:shadow-lg transition
- *   - 封面图区域：aspect-[4/3]，relative，overflow-hidden
- *       <Image src={event.photo.url} alt={event.event_name} fill objectFit="cover" />
- *       hover 时图片轻微 scale-105
- *   - 卡片底部 padding 区域：
- *       活动名称：font-semibold text-foreground，line-clamp-2
- *       举办日期：text-sm text-muted-foreground，使用 formatEventDate() 格式化
- *
- * 【关键变量】
- * - formattedDate: string — formatEventDate(event.event_date) 的返回值
- */
+import Image from "next/image";
+import type { PastEvent } from "@/lib/types/cms.types";
+import { Card } from "@/components/ui/Card";
+import { formatEventDate } from "@/lib/utils/formatDate";
 
-export {}
+interface EventCardProps {
+  event: PastEvent;
+  priority?: boolean;
+}
+
+export default function EventCard({ event, priority = false }: EventCardProps) {
+  return (
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
+      {/* Cover image */}
+      <div className="relative aspect-[4/3] overflow-hidden">
+        {event.coverImageUrl ? (
+          <Image
+            src={event.coverImageUrl}
+            alt={event.title}
+            fill
+            className="object-cover transition-transform duration-300 hover:scale-105"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            priority={priority}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-muted">
+            <span className="text-muted-foreground text-sm">暂无图片</span>
+          </div>
+        )}
+      </div>
+
+      {/* Card body */}
+      <div className="p-4">
+        <h3 className="font-semibold text-foreground line-clamp-2">
+          {event.title}
+        </h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {formatEventDate(event.date)}
+        </p>
+        {event.description && (
+          <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+            {event.description}
+          </p>
+        )}
+      </div>
+    </Card>
+  );
+}
