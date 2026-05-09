@@ -64,8 +64,14 @@ const MEMBERS_QUERY = `
         id
         attributes {
           name
-          role
-          department
+          title
+          department {
+            data {
+              attributes {
+                name
+              }
+            }
+          }
           photo {
             data {
               attributes {
@@ -75,6 +81,7 @@ const MEMBERS_QUERY = `
           }
           introduction
           major
+          order
         }
       }
     }
@@ -90,8 +97,8 @@ export async function getMembers(): Promise<Member[]> {
     return (data.members?.data || []).map((item) => ({
       id: item.id,
       name: item.attributes.name,
-      role: item.attributes.role,
-      department: item.attributes.department,
+      role: item.attributes.title,
+      department: item.attributes.department?.data?.attributes?.name ?? null,
       photoUrl: item.attributes.photo?.data?.attributes?.url
         ? getStrapiImageUrl(item.attributes.photo.data.attributes.url)
         : null,
@@ -121,7 +128,6 @@ const ACTIVE_EVENTS_QUERY = `
           capacity
           status
           form_schema
-          registrationCount
         }
       }
     }
@@ -135,7 +141,6 @@ export async function getActiveEvents(): Promise<ActiveEvent[]> {
     }>(ACTIVE_EVENTS_QUERY, undefined, { revalidate: 30 });
 
     return (data.events?.data || []).map((item) => {
-      // form_schema may be a JSON string or already parsed
       let formSchema: FormFieldRaw[] = [];
       if (typeof item.attributes.form_schema === "string") {
         try {
@@ -156,7 +161,7 @@ export async function getActiveEvents(): Promise<ActiveEvent[]> {
         capacity: item.attributes.capacity,
         status: item.attributes.status,
         form_schema: formSchema,
-        registrationCount: item.attributes.registrationCount,
+        registrationCount: undefined,
       };
     });
   } catch (error) {
@@ -224,10 +229,10 @@ const PAST_EVENTS_QUERY = `
       data {
         id
         attributes {
-          title
-          date
-          description
-          cover_image {
+          event_name
+          event_date
+          introduction
+          photo {
             data {
               attributes {
                 url
@@ -248,11 +253,11 @@ export async function getPastEvents(): Promise<PastEvent[]> {
 
     return (data.pastEvents?.data || []).map((item) => ({
       id: item.id,
-      title: item.attributes.title,
-      date: item.attributes.date,
-      description: item.attributes.description,
-      coverImageUrl: item.attributes.cover_image?.data?.attributes?.url
-        ? getStrapiImageUrl(item.attributes.cover_image.data.attributes.url)
+      title: item.attributes.event_name,
+      date: item.attributes.event_date,
+      description: item.attributes.introduction,
+      coverImageUrl: item.attributes.photo?.data?.attributes?.url
+        ? getStrapiImageUrl(item.attributes.photo.data.attributes.url)
         : null,
     }));
   } catch (error) {
