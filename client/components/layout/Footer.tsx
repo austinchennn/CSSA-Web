@@ -1,34 +1,71 @@
-/**
- * ============================================================
- * FILE: client/components/layout/Footer.tsx
- * ============================================================
- *
- * 【作用】
- * 全站底部版权栏。包含 CSSA Logo、快速导航链接分组、
- * 社交媒体图标入口、版权声明文字。纯静态组件，无数据请求。
- *
- * 【依赖关系】
- * Imports from:
- *   - lib/constants/routes.ts  : NAV_LINKS, SOCIAL_LINKS 常量
- *   - next/link                : 路由跳转
- *   - next/image               : Logo 渲染
- *
- * Exported to / Used by:
- *   - app/layout.tsx : 挂载于根 Layout 底部
- *
- * 【组件】
- * export default function Footer(): JSX.Element
- *   - 顶部区域（三列 Grid）：
- *       左列：CSSA Logo + 社团一句话介绍
- *       中列：快速导航链接（来自 NAV_LINKS）
- *       右列：社交媒体图标（来自 SOCIAL_LINKS，含平台名和 href）
- *   - 底部分割线 + 版权声明：
- *       "© {currentYear} UTMCSSA. All rights reserved."
- *
- * 【关键变量】
- * - currentYear: number — new Date().getFullYear()，动态年份
- * - NAV_LINKS: NavLink[] — 同 Navbar 复用
- * - SOCIAL_LINKS: SocialLink[] — 含 { platform, href, icon } 的社交媒体配置
- */
+import Link from "next/link";
+import { NAV_LINKS, SOCIAL_LINKS } from "@/lib/constants/routes";
 
-export {}
+export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
+  return (
+    <footer className="border-t border-border bg-card">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          {/* Logo & description */}
+          <div>
+            <Link href="/" className="text-xl font-bold text-primary">
+              UTMCSSA
+            </Link>
+            <p className="mt-3 text-sm text-muted-foreground">
+              多伦多大学密西沙加校区中国学生学者联合会
+            </p>
+          </div>
+
+          {/* Quick links */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-4">
+              快速导航
+            </h3>
+            <ul className="space-y-2">
+              {NAV_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Social links */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-4">
+              社交媒体
+            </h3>
+            <ul className="space-y-2">
+              {SOCIAL_LINKS.map((link) => (
+                <li key={link.platform}>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {link.platform}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Copyright */}
+        <div className="mt-8 border-t border-border pt-6 text-center">
+          <p className="text-sm text-muted-foreground">
+            © {currentYear} UTMCSSA. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}

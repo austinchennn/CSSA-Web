@@ -1,40 +1,48 @@
-/**
- * ============================================================
- * FILE: client/components/sections/events/TimelineItem.tsx
- * ============================================================
- *
- * 【作用】
- * 时间线中的单个活动条目。包含中轴节点圆点、日期标签、
- * 活动封面图、活动名称和简介摘要。支持滚动进场动效。
- *
- * 【依赖关系】
- * Imports from:
- *   - lib/types/cms.types.ts   : PastEvent 类型
- *   - lib/utils/formatDate.ts  : formatEventDate()
- *   - hooks/useScrollAnimation.ts : { ref, isInView } — 检测是否进入视口
- *   - framer-motion            : motion.div — 进场动效
- *   - next/image               : 活动封面图
- *
- * Exported to / Used by:
- *   - components/sections/events/Timeline.tsx
- *
- * 【Props Interface】
- * interface TimelineItemProps
- *   - event: PastEvent — 单个往期活动数据
- *   - index: number    — 条目序号（决定左右位置）
- *   - isActive: boolean — 是否为当前激活（中轴节点变色）
- *
- * 【组件】
- * export default function TimelineItem({ event, index, isActive }: TimelineItemProps): JSX.Element
- *   - 使用 useScrollAnimation() 获取 { ref, isInView }，绑定到条目根元素
- *   - Framer Motion 动效：isInView=true 时从 opacity:0,x:±40 → opacity:1,x:0
- *       左侧条目从 x:-40 进场，右侧从 x:40 进场
- *   - 中轴节点：圆形，isActive 时 bg-primary，非激活时 bg-muted
- *   - 内容卡片：活动日期（小字）+ 活动名称（粗体）+ 封面图（aspect-video）+ 摘要文字
- *   - 富文本 introduction 使用 line-clamp-3 截断
- *
- * 【关键变量】
- * - isLeftSide: boolean — index % 2 === 0（桌面端左侧布局）
- */
+"use client";
 
-export {}
+import type { PastEvent } from "@/lib/types/cms.types";
+import { formatEventDate } from "@/lib/utils/formatDate";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { cn } from "@/lib/utils/cn";
+
+interface TimelineItemProps {
+  event: PastEvent;
+  isRight: boolean;
+}
+
+export default function TimelineItem({ event, isRight }: TimelineItemProps) {
+  const { ref, isVisible } = useScrollAnimation({ threshold: 0.2 });
+
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "relative flex mb-8 transition-all duration-500",
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
+        "flex-row pl-12 md:pl-0",
+        isRight ? "md:flex-row" : "md:flex-row-reverse"
+      )}
+    >
+      {/* Dot on the timeline */}
+      <div className="absolute left-3 top-2 z-10 h-3 w-3 rounded-full bg-primary border-2 border-background md:left-1/2 md:-translate-x-1.5" />
+
+      {/* Spacer for alternate layout */}
+      <div className="hidden md:block md:w-1/2" />
+
+      {/* Content card */}
+      <div className="w-full md:w-1/2 md:px-8">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+          <h4 className="font-semibold text-foreground">{event.title}</h4>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {formatEventDate(event.date)}
+          </p>
+          {event.description && (
+            <p className="mt-2 text-sm text-muted-foreground line-clamp-3">
+              {event.description}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

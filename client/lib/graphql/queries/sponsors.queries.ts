@@ -1,32 +1,60 @@
-/**
- * ============================================================
- * FILE: client/lib/graphql/queries/sponsors.queries.ts
- * ============================================================
- *
- * 【作用】
- * 赞助商（Sponsors）相关 GraphQL Query。
- * 获取所有赞助商的 Logo、名称、官网链接和赞助档位，
- * 供赞助商页面和首页 SponsorsStrip 使用。
- *
- * 【依赖关系】
- * Imports from:
- *   - lib/graphql/client.ts  : gqlFetch
- *   - lib/types/cms.types.ts : Sponsor 类型
- *
- * Exported to / Used by:
- *   - app/sponsors/page.tsx
- *   - app/page.tsx（首页横条）
- *
- * 【GraphQL Query 常量】
- * const SPONSORS_QUERY: string
- *   - 查询字段：id, name, logoUrl{url, alternativeText}, websiteUrl, tier, description
- *   - 排序：tier asc（gold 档在前），然后 name asc
- *
- * 【函数】
- * export async function fetchSponsors(): Promise<Sponsor[]>
- *   - revalidate: 300（赞助商信息变更频率低）
- *   - 返回按 tier 排序的赞助商数组
- *   - 使用 flattenStrapiData 处理嵌套结构
- */
+import { gqlFetch } from "@/lib/graphql/client";
+import { getStrapiImageUrl } from "@/lib/image";
+import type {
+  Sponsor,
+  StrapiCollectionResponse,
+  StrapiMediaRaw,
+} from "@/lib/types/cms.types";
 
-export {}
+interface SponsorAttributes {
+  name: string;
+  logo: StrapiMediaRaw;
+  website_url?: string;
+  tier: "gold" | "silver" | "bronze";
+  description?: string;
+}
+
+const SPONSORS_QUERY = `
+  query {
+    sponsors {
+      data {
+        id
+        attributes {
+          name
+          logo {
+            data {
+              attributes {
+                url
+              }
+            }
+          }
+          website_url
+          tier
+          description
+        }
+      }
+    }
+  }
+`;
+
+export async function fetchSponsors(): Promise<Sponsor[]> {
+  try {
+    const data = await gqlFetch<{
+      sponsors: StrapiCollectionResponse<SponsorAttributes>;
+    }>(SPONSORS_QUERY, undefined, { revalidate: 300 });
+
+    return (data.sponsors?.data || []).map((item) => ({
+      id: item.id,
+      name: item.attributes.name,
+      logoUrl: item.attributes.logo?.data?.attributes?.url
+        ? getStrapiImageUrl(item.attributes.logo.data.attributes.url)
+        : null,
+      websiteUrl: item.attributes.website_url,
+      tier: item.attributes.tier,
+      description: item.attributes.description,
+    }));
+  } catch (error) {
+    console.error("Failed to fetch sponsors:", error);
+    return [];
+  }
+}

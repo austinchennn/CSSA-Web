@@ -1,36 +1,56 @@
-/**
- * ============================================================
- * FILE: client/components/sections/events/Timeline.tsx
- * ============================================================
- *
- * 【作用】
- * 活动竖向时间线容器组件。管理所有 <TimelineItem> 的渲染和滚动交互。
- * 使用 Intersection Observer API（或 Framer Motion useScroll）监听每个
- * TimelineItem 进入视口的时机，触发进场动效和激活状态高亮。
- *
- * 【依赖关系】
- * Imports from:
- *   - lib/types/cms.types.ts                        : PastEvent 类型
- *   - components/sections/events/TimelineItem.tsx   : 单个时间线条目
- *   - hooks/useScrollAnimation.ts                   : 提供 ref 和 inView 布尔值
- *
- * Exported to / Used by:
- *   - app/events/page.tsx
- *
- * 【Props Interface】
- * interface TimelineProps
- *   - events: PastEvent[] — 已按 event_date:desc 排序的所有往期活动
- *
- * 【组件】
- * export default function Timeline({ events }: TimelineProps): JSX.Element
- *   - 外层容器：relative（供中轴线定位）
- *   - 中轴线：absolute 垂直线，left: 50%（桌面），left: 20px（移动）
- *   - 遍历 events，每个渲染 <TimelineItem event={event} index={index} />
- *   - 奇数 index 的条目在时间线左侧，偶数在右侧（桌面端）
- *   - 移动端所有条目统一在右侧
- *
- * 【关键变量】
- * - activeIndex: number — 当前视口中央的条目 index（用于高亮中轴线节点）
- */
+import type { PastEvent } from "@/lib/types/cms.types";
+import TimelineItem from "./TimelineItem";
+import { getYear } from "@/lib/utils/formatDate";
 
-export {}
+interface TimelineProps {
+  events: PastEvent[];
+}
+
+export default function Timeline({ events }: TimelineProps) {
+  if (!events || events.length === 0) {
+    return (
+      <p className="text-center text-muted-foreground py-12">
+        暂无活动记录。
+      </p>
+    );
+  }
+
+  // Group events by year
+  const eventsByYear = new Map<number, PastEvent[]>();
+  for (const event of events) {
+    const year = getYear(event.date);
+    const group = eventsByYear.get(year) || [];
+    group.push(event);
+    eventsByYear.set(year, group);
+  }
+
+  // Sort years descending
+  const sortedYears = Array.from(eventsByYear.keys()).sort((a, b) => b - a);
+
+  return (
+    <div className="relative">
+      {/* Vertical line */}
+      <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border md:left-1/2 md:-translate-x-0.5" />
+
+      {sortedYears.map((year) => (
+        <div key={year} className="mb-12">
+          {/* Year label */}
+          <div className="relative mb-8 flex justify-start md:justify-center">
+            <span className="relative z-10 ml-10 rounded-full bg-primary px-4 py-1 text-sm font-bold text-primary-foreground md:ml-0">
+              {year}
+            </span>
+          </div>
+
+          {/* Events for this year */}
+          {eventsByYear.get(year)?.map((event, index) => (
+            <TimelineItem
+              key={event.id}
+              event={event}
+              isRight={index % 2 === 0}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
