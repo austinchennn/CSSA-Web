@@ -8,7 +8,7 @@ interface MemberCardProps {
 
 export default function MemberCard({ member }: MemberCardProps) {
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-all duration-200 hover:scale-[1.02]">
+    <Card className="overflow-hidden hover:shadow-md transition-all duration-200 hover:scale-[1.02] w-full">
       <div className="flex flex-col items-center p-6">
         {/* Photo */}
         <div className="relative h-24 w-24 overflow-hidden rounded-full bg-muted">

@@ -29,22 +29,13 @@ export default async function TeamPage() {
 
   const departmentIdMap = new Map(departments.map((d) => [d.name, d.id]));
 
-  // Group members by department
   const grouped = groupBy(members, (m) => m.department || "其他");
 
-  // Sort: put common executive groups first
-  const sortedKeys = Array.from(grouped.keys()).sort((a, b) => {
-    const priority = ["主席团", "Executive", "President"];
-    const aIsPriority = priority.some((p) =>
-      a.toLowerCase().includes(p.toLowerCase())
-    );
-    const bIsPriority = priority.some((p) =>
-      b.toLowerCase().includes(p.toLowerCase())
-    );
-    if (aIsPriority && !bIsPriority) return -1;
-    if (!aIsPriority && bIsPriority) return 1;
-    return a.localeCompare(b, "zh");
-  });
+  const EXECUTIVE_KEY = "主席团";
+  const executiveMembers = grouped.get(EXECUTIVE_KEY) || [];
+  const otherKeys = Array.from(grouped.keys())
+    .filter((k) => k !== EXECUTIVE_KEY)
+    .sort((a, b) => a.localeCompare(b, "zh"));
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
@@ -53,8 +44,21 @@ export default async function TeamPage() {
         subtitle="认识我们的团队成员"
       />
 
+      {/* 主席团：单独一行，成员横向排列 */}
+      {executiveMembers.length > 0 && (
+        <div className="mb-12">
+          <DepartmentGroup
+            departmentName={EXECUTIVE_KEY}
+            departmentId={departmentIdMap.get(EXECUTIVE_KEY)}
+            members={executiveMembers}
+            horizontal
+          />
+        </div>
+      )}
+
+      {/* 各部门：三列网格 */}
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {sortedKeys.map((dept) => (
+        {otherKeys.map((dept) => (
           <DepartmentGroup
             key={dept}
             departmentName={dept}
