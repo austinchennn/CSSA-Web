@@ -1,39 +1,32 @@
 import type { Metadata } from "next";
-import { getActiveEvents, getSiteConfig } from "@/lib/graphql";
+import Link from "next/link";
+import { getSiteConfig } from "@/lib/graphql";
 import SectionHeader from "@/components/shared/SectionHeader";
-import JoinPageClient from "./JoinPageClient";
+import { ROUTES } from "@/lib/constants/routes";
 
 export const metadata: Metadata = {
-  title: "Join Us",
+  title: "加入我们",
 };
 
-export const revalidate = 30;
+export const revalidate = 300;
 
 export default async function JoinPage() {
-  const [activeEvents, siteConfig] = await Promise.all([
-    getActiveEvents().catch(() => []),
-    getSiteConfig().catch(() => null),
-  ]);
+  const siteConfig = await getSiteConfig().catch(() => null);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-3xl px-4 py-20 sm:px-6 lg:px-8 text-center">
       <SectionHeader
         title="加入我们"
         subtitle={siteConfig?.join_us_description || "欢迎加入 UTMCSSA 大家庭！"}
       />
-
-      {activeEvents.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground text-lg">
-            当前暂无开放报名的活动。
-          </p>
-          <p className="text-muted-foreground text-sm mt-2">
-            请关注我们的社交媒体获取最新活动信息。
-          </p>
-        </div>
-      ) : (
-        <JoinPageClient events={activeEvents} />
-      )}
+      <div className="mt-8">
+        <Link
+          href={ROUTES.REGISTRATION}
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity"
+        >
+          查看活动报名 →
+        </Link>
+      </div>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import SectionHeader from "@/components/shared/SectionHeader";
 import AnimatedSection from "@/components/shared/AnimatedSection";
 
 export const metadata: Metadata = {
-  title: "Events",
+  title: "往期活动",
 };
 
 export const revalidate = 60;
@@ -24,8 +24,8 @@ export default async function EventsPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
       <SectionHeader
-        title="活动"
-        subtitle="了解我们举办的精彩活动"
+        title="往期活动"
+        subtitle="了解我们举办过的精彩活动"
       />
 
       {sortedEvents.length === 0 ? (
