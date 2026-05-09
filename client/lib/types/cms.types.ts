@@ -36,30 +36,49 @@ export interface StrapiSingleResponse<T> {
 export interface Department {
   id: string;
   name: string;
-  leader_name: string;
+  leader_name?: string;
+  leader_introduction?: string;
   introduction?: string;
+  benefits?: string;
+}
+
+export interface DepartmentDetail {
+  id: string;
+  name: string;
+  leader_name?: string;
+  leader_introduction?: string;
+  introduction?: string;
+  benefits?: string;
+  members: Member[];
 }
 
 export interface DepartmentAttributes {
   name: string;
-  leader_name: string;
+  leader_name?: string;
+  leader_introduction?: string;
   introduction?: string;
+  benefits?: string;
 }
 
 export interface MemberAttributes {
   name: string;
-  role: string;
-  department: string;
+  title: string;
+  department: {
+    data: {
+      attributes: { name: string };
+    } | null;
+  };
   photo: StrapiMediaRaw;
   introduction?: string;
   major?: string;
+  order?: number;
 }
 
 export interface Member {
   id: string;
   name: string;
   role: string;
-  department: string;
+  department: string | null;
   photoUrl: string | null;
   introduction?: string;
   major?: string;

@@ -3,8 +3,10 @@ import { getStrapiImageUrl } from "@/lib/image";
 import type {
   Department,
   DepartmentAttributes,
+  DepartmentDetail,
   Member,
   MemberAttributes,
+  StrapiMediaRaw,
   ActiveEvent,
   EventAttributes,
   PastEvent,
@@ -27,8 +29,6 @@ const DEPARTMENTS_QUERY = `
         id
         attributes {
           name
-          leader_name
-          introduction
         }
       }
     }
@@ -44,12 +44,91 @@ export async function getDepartments(): Promise<Department[]> {
     return (data.departments?.data || []).map((item) => ({
       id: item.id,
       name: item.attributes.name,
-      leader_name: item.attributes.leader_name,
-      introduction: item.attributes.introduction,
     }));
   } catch (error) {
     console.error("Failed to fetch departments:", error);
     return [];
+  }
+}
+
+// ============================================================
+// Query: Department by ID
+// ============================================================
+
+const DEPARTMENT_BY_ID_QUERY = `
+  query GetDepartment($id: ID!) {
+    department(id: $id) {
+      data {
+        id
+        attributes {
+          name
+          leader_name
+          leader_introduction
+          introduction
+          benefits
+          members {
+            data {
+              id
+              attributes {
+                name
+                title
+                introduction
+                major
+                order
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+interface DepartmentMemberAttributes {
+  name: string;
+  title: string;
+  introduction?: string;
+  major?: string;
+  order?: number;
+}
+
+interface DepartmentDetailAttributes extends DepartmentAttributes {
+  members: StrapiCollectionResponse<DepartmentMemberAttributes>;
+}
+
+export async function getDepartmentById(id: string): Promise<DepartmentDetail | null> {
+  try {
+    const data = await gqlFetch<{
+      department: StrapiSingleResponse<DepartmentDetailAttributes>;
+    }>(DEPARTMENT_BY_ID_QUERY, { id }, { revalidate: 300 });
+
+    const dept = data.department?.data;
+    if (!dept) return null;
+
+    const members = (dept.attributes.members?.data || [])
+      .sort((a, b) => (a.attributes.order ?? 0) - (b.attributes.order ?? 0))
+      .map((item) => ({
+        id: item.id,
+        name: item.attributes.name,
+        role: item.attributes.title,
+        department: dept.attributes.name,
+        photoUrl: null,
+        introduction: item.attributes.introduction,
+        major: item.attributes.major,
+      }));
+
+    return {
+      id: dept.id,
+      name: dept.attributes.name,
+      leader_name: dept.attributes.leader_name,
+      leader_introduction: dept.attributes.leader_introduction,
+      introduction: dept.attributes.introduction,
+      benefits: dept.attributes.benefits,
+      members,
+    };
+  } catch (error) {
+    console.error("Failed to fetch department:", error);
+    return null;
   }
 }
 

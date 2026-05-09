@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getMembers } from "@/lib/graphql";
+import { getDepartments, getMembers } from "@/lib/graphql";
 import { groupBy } from "@/lib/utils/formatters";
 import DepartmentGroup from "@/components/sections/team/DepartmentGroup";
 import SectionHeader from "@/components/shared/SectionHeader";
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export const revalidate = 120;
 
 export default async function TeamPage() {
-  const members = await getMembers();
+  const [members, departments] = await Promise.all([getMembers(), getDepartments()]);
 
   if (!members || members.length === 0) {
     return (
@@ -26,6 +26,8 @@ export default async function TeamPage() {
       </div>
     );
   }
+
+  const departmentIdMap = new Map(departments.map((d) => [d.name, d.id]));
 
   // Group members by department
   const grouped = groupBy(members, (m) => m.department || "其他");
@@ -51,13 +53,16 @@ export default async function TeamPage() {
         subtitle="认识我们的团队成员"
       />
 
-      {sortedKeys.map((dept) => (
-        <DepartmentGroup
-          key={dept}
-          departmentName={dept}
-          members={grouped.get(dept) || []}
-        />
-      ))}
+      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {sortedKeys.map((dept) => (
+          <DepartmentGroup
+            key={dept}
+            departmentName={dept}
+            departmentId={departmentIdMap.get(dept)}
+            members={grouped.get(dept) || []}
+          />
+        ))}
+      </div>
     </div>
   );
 }
