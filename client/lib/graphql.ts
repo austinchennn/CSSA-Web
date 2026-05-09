@@ -231,6 +231,7 @@ const PAST_EVENTS_QUERY = `
         attributes {
           event_name
           event_date
+          event_location
           introduction
           photo {
             data {
@@ -256,6 +257,7 @@ export async function getPastEvents(): Promise<PastEvent[]> {
       title: item.attributes.event_name,
       date: item.attributes.event_date,
       description: item.attributes.introduction,
+      location: item.attributes.event_location,
       coverImageUrl: item.attributes.photo?.data?.attributes?.url
         ? getStrapiImageUrl(item.attributes.photo.data.attributes.url)
         : null,
@@ -274,6 +276,7 @@ const PAST_EVENT_BY_ID_QUERY = `
         attributes {
           event_name
           event_date
+          event_location
           introduction
           photo {
             data {
@@ -302,6 +305,7 @@ export async function getPastEventById(id: string): Promise<PastEvent | null> {
       title: item.attributes.event_name,
       date: item.attributes.event_date,
       description: item.attributes.introduction,
+      location: item.attributes.event_location,
       coverImageUrl: item.attributes.photo?.data?.attributes?.url
         ? getStrapiImageUrl(item.attributes.photo.data.attributes.url)
         : null,

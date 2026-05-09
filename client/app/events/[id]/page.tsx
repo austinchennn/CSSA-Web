@@ -53,8 +53,13 @@ export default async function EventDetailPage({
         </div>
       )}
 
-      <h1 className="text-3xl font-bold text-foreground mb-3">{event.title}</h1>
-      <p className="text-muted-foreground mb-8">{formatEventDate(event.date)}</p>
+      <h1 className="text-3xl font-bold text-foreground mb-4">{event.title}</h1>
+      <div className="flex flex-col gap-1 mb-8 text-muted-foreground">
+        <p><span className="font-medium text-foreground">活动日期：</span>{formatEventDate(event.date)}</p>
+        {event.location && (
+          <p><span className="font-medium text-foreground">活动地点：</span>{event.location}</p>
+        )}
+      </div>
 
       {event.description && (
         <div className="prose prose-neutral dark:prose-invert max-w-none">

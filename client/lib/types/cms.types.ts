@@ -98,10 +98,11 @@ export interface FormFieldRaw {
 }
 
 export interface PastEventAttributes {
-  title: string;
-  date: string;
-  description?: string;
-  cover_image: StrapiMediaRaw;
+  event_name: string;
+  event_date: string;
+  introduction?: string;
+  event_location?: string;
+  photo: StrapiMediaRaw;
 }
 
 export interface PastEvent {
@@ -109,6 +110,7 @@ export interface PastEvent {
   title: string;
   date: string;
   description?: string;
+  location?: string;
   coverImageUrl: string | null;
 }
 
