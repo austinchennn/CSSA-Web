@@ -3,8 +3,10 @@ import { getStrapiImageUrl } from "@/lib/image";
 import type {
   Department,
   DepartmentAttributes,
+  DepartmentDetail,
   Member,
   MemberAttributes,
+  StrapiMediaRaw,
   ActiveEvent,
   EventAttributes,
   PastEvent,
@@ -27,8 +29,6 @@ const DEPARTMENTS_QUERY = `
         id
         attributes {
           name
-          leader_name
-          introduction
         }
       }
     }
@@ -44,12 +44,91 @@ export async function getDepartments(): Promise<Department[]> {
     return (data.departments?.data || []).map((item) => ({
       id: item.id,
       name: item.attributes.name,
-      leader_name: item.attributes.leader_name,
-      introduction: item.attributes.introduction,
     }));
   } catch (error) {
     console.error("Failed to fetch departments:", error);
     return [];
+  }
+}
+
+// ============================================================
+// Query: Department by ID
+// ============================================================
+
+const DEPARTMENT_BY_ID_QUERY = `
+  query GetDepartment($id: ID!) {
+    department(id: $id) {
+      data {
+        id
+        attributes {
+          name
+          leader_name
+          leader_introduction
+          introduction
+          benefits
+          members {
+            data {
+              id
+              attributes {
+                name
+                title
+                introduction
+                major
+                order
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+interface DepartmentMemberAttributes {
+  name: string;
+  title: string;
+  introduction?: string;
+  major?: string;
+  order?: number;
+}
+
+interface DepartmentDetailAttributes extends DepartmentAttributes {
+  members: StrapiCollectionResponse<DepartmentMemberAttributes>;
+}
+
+export async function getDepartmentById(id: string): Promise<DepartmentDetail | null> {
+  try {
+    const data = await gqlFetch<{
+      department: StrapiSingleResponse<DepartmentDetailAttributes>;
+    }>(DEPARTMENT_BY_ID_QUERY, { id }, { revalidate: 300 });
+
+    const dept = data.department?.data;
+    if (!dept) return null;
+
+    const members = (dept.attributes.members?.data || [])
+      .sort((a, b) => (a.attributes.order ?? 0) - (b.attributes.order ?? 0))
+      .map((item) => ({
+        id: item.id,
+        name: item.attributes.name,
+        role: item.attributes.title,
+        department: dept.attributes.name,
+        photoUrl: null,
+        introduction: item.attributes.introduction,
+        major: item.attributes.major,
+      }));
+
+    return {
+      id: dept.id,
+      name: dept.attributes.name,
+      leader_name: dept.attributes.leader_name,
+      leader_introduction: dept.attributes.leader_introduction,
+      introduction: dept.attributes.introduction,
+      benefits: dept.attributes.benefits,
+      members,
+    };
+  } catch (error) {
+    console.error("Failed to fetch department:", error);
+    return null;
   }
 }
 
@@ -64,8 +143,14 @@ const MEMBERS_QUERY = `
         id
         attributes {
           name
-          role
-          department
+          title
+          department {
+            data {
+              attributes {
+                name
+              }
+            }
+          }
           photo {
             data {
               attributes {
@@ -75,6 +160,7 @@ const MEMBERS_QUERY = `
           }
           introduction
           major
+          order
         }
       }
     }
@@ -90,8 +176,8 @@ export async function getMembers(): Promise<Member[]> {
     return (data.members?.data || []).map((item) => ({
       id: item.id,
       name: item.attributes.name,
-      role: item.attributes.role,
-      department: item.attributes.department,
+      role: item.attributes.title,
+      department: item.attributes.department?.data?.attributes?.name ?? null,
       photoUrl: item.attributes.photo?.data?.attributes?.url
         ? getStrapiImageUrl(item.attributes.photo.data.attributes.url)
         : null,
@@ -121,7 +207,6 @@ const ACTIVE_EVENTS_QUERY = `
           capacity
           status
           form_schema
-          registrationCount
         }
       }
     }
@@ -135,7 +220,6 @@ export async function getActiveEvents(): Promise<ActiveEvent[]> {
     }>(ACTIVE_EVENTS_QUERY, undefined, { revalidate: 30 });
 
     return (data.events?.data || []).map((item) => {
-      // form_schema may be a JSON string or already parsed
       let formSchema: FormFieldRaw[] = [];
       if (typeof item.attributes.form_schema === "string") {
         try {
@@ -156,7 +240,7 @@ export async function getActiveEvents(): Promise<ActiveEvent[]> {
         capacity: item.attributes.capacity,
         status: item.attributes.status,
         form_schema: formSchema,
-        registrationCount: item.attributes.registrationCount,
+        registrationCount: undefined,
       };
     });
   } catch (error) {
@@ -224,10 +308,11 @@ const PAST_EVENTS_QUERY = `
       data {
         id
         attributes {
-          title
-          date
-          description
-          cover_image {
+          event_name
+          event_date
+          event_location
+          introduction
+          photo {
             data {
               attributes {
                 url
@@ -248,15 +333,64 @@ export async function getPastEvents(): Promise<PastEvent[]> {
 
     return (data.pastEvents?.data || []).map((item) => ({
       id: item.id,
-      title: item.attributes.title,
-      date: item.attributes.date,
-      description: item.attributes.description,
-      coverImageUrl: item.attributes.cover_image?.data?.attributes?.url
-        ? getStrapiImageUrl(item.attributes.cover_image.data.attributes.url)
+      title: item.attributes.event_name,
+      date: item.attributes.event_date,
+      description: item.attributes.introduction,
+      location: item.attributes.event_location,
+      coverImageUrl: item.attributes.photo?.data?.attributes?.url
+        ? getStrapiImageUrl(item.attributes.photo.data.attributes.url)
         : null,
     }));
   } catch (error) {
     console.error("Failed to fetch past events:", error);
     return [];
+  }
+}
+
+const PAST_EVENT_BY_ID_QUERY = `
+  query($id: ID!) {
+    pastEvent(id: $id) {
+      data {
+        id
+        attributes {
+          event_name
+          event_date
+          event_location
+          introduction
+          photo {
+            data {
+              attributes {
+                url
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export async function getPastEventById(id: string): Promise<PastEvent | null> {
+  try {
+    const data = await gqlFetch<{
+      pastEvent: StrapiSingleResponse<PastEventAttributes>;
+    }>(PAST_EVENT_BY_ID_QUERY, { id }, { revalidate: 60 });
+
+    const item = data.pastEvent?.data;
+    if (!item) return null;
+
+    return {
+      id: item.id,
+      title: item.attributes.event_name,
+      date: item.attributes.event_date,
+      description: item.attributes.introduction,
+      location: item.attributes.event_location,
+      coverImageUrl: item.attributes.photo?.data?.attributes?.url
+        ? getStrapiImageUrl(item.attributes.photo.data.attributes.url)
+        : null,
+    };
+  } catch (error) {
+    console.error("Failed to fetch past event by id:", error);
+    return null;
   }
 }

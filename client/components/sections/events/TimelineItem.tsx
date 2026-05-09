@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { PastEvent } from "@/lib/types/cms.types";
 import { formatEventDate } from "@/lib/utils/formatDate";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -31,17 +32,19 @@ export default function TimelineItem({ event, isRight }: TimelineItemProps) {
 
       {/* Content card */}
       <div className="w-full md:w-1/2 md:px-8">
-        <div className="rounded-lg border border-border bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
-          <h4 className="font-semibold text-foreground">{event.title}</h4>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {formatEventDate(event.date)}
-          </p>
-          {event.description && (
-            <p className="mt-2 text-sm text-muted-foreground line-clamp-3">
-              {event.description}
+        <Link href={`/events/${event.id}`} className="block">
+          <div className="rounded-lg border border-border bg-card p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+            <h4 className="font-semibold text-foreground">{event.title}</h4>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {formatEventDate(event.date)}
             </p>
-          )}
-        </div>
+            {event.description && (
+              <p className="mt-2 text-sm text-muted-foreground line-clamp-3">
+                {event.description}
+              </p>
+            )}
+          </div>
+        </Link>
       </div>
     </div>
   );

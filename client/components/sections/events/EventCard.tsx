@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { PastEvent } from "@/lib/types/cms.types";
 import { Card } from "@/components/ui/Card";
 import { formatEventDate } from "@/lib/utils/formatDate";
@@ -10,7 +11,8 @@ interface EventCardProps {
 
 export default function EventCard({ event, priority = false }: EventCardProps) {
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
+    <Link href={`/events/${event.id}`} className="block">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 h-full cursor-pointer">
       {/* Cover image */}
       <div className="relative aspect-[4/3] overflow-hidden">
         {event.coverImageUrl ? (
@@ -44,5 +46,6 @@ export default function EventCard({ event, priority = false }: EventCardProps) {
         )}
       </div>
     </Card>
+    </Link>
   );
 }
