@@ -29,9 +29,16 @@ export default async function TeamPage() {
 
   const departmentIdMap = new Map(departments.map((d) => [d.name, d.id]));
 
-  const grouped = groupBy(members, (m) => m.department || "其他");
-
   const EXECUTIVE_KEY = "主席团";
+
+  // 主席团：全员展示；其他部门：只展示含"部长"职位的成员
+  const filtered = members.filter((m) => {
+    if (m.department === EXECUTIVE_KEY) return true;
+    return m.role?.includes("部长");
+  });
+
+  const grouped = groupBy(filtered, (m) => m.department || "其他");
+
   const executiveMembers = grouped.get(EXECUTIVE_KEY) || [];
   const otherKeys = Array.from(grouped.keys())
     .filter((k) => k !== EXECUTIVE_KEY)
