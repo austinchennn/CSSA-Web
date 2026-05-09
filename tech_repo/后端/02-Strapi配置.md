@@ -82,9 +82,7 @@ graphql: {
   config: {
     origin: [
       'http://localhost:3000',    // 客户端前台
-      'http://localhost:3001',    // 后台前端
       process.env.CLIENT_URL,    // 生产域名
-      process.env.ADMIN_FRONTEND_URL,
     ].filter(Boolean),           // 过滤 undefined（未设置的环境变量）
   },
 }

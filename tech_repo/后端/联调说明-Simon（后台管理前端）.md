@@ -1,5 +1,7 @@
 # 后端联调说明 — Simon（后台管理前端）
 
+> **[已废弃]** admin-frontend 独立后台前端已于 2026-05 移除，改用 Strapi 原生 Admin UI（`http://localhost:1337/admin`）。本文档仅作历史存档。
+
 > 更新时间：2026-05-01  
 > 适用分支：`dev`（合并后）  
 > 前置条件：后端已按启动顺序运行（Docker + Strapi + 微服务）
