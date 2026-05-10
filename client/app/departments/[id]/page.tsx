@@ -86,6 +86,37 @@ export default async function DepartmentDetailPage({
             <p className="text-muted-foreground text-sm">暂无信息</p>
           )}
         </div>
+
+        {/* 部门成员 */}
+        {dept.members.length > 0 && (
+          <div className="rounded-2xl border border-border bg-card p-8">
+            <h2 className="text-lg font-semibold text-primary mb-6">部门成员</h2>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+              {dept.members.map((member) => (
+                <div
+                  key={member.id}
+                  className="flex flex-col items-center gap-2 rounded-xl border border-border bg-background p-4 text-center"
+                >
+                  {member.photoUrl ? (
+                    <img
+                      src={member.photoUrl}
+                      alt={member.name}
+                      className="h-14 w-14 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-lg">
+                      {member.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm font-medium text-foreground leading-snug">{member.name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{member.role}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -32,8 +32,7 @@ NestJS 微服务的作用是在请求到达 Strapi 之前加一层拦截：
 ```
 端口分配：
   3000 → 客户端前台（Next.js，Emilia 负责）
-  3001 → 后台前端（Next.js，Yeon 负责）
-  1337 → Strapi CMS
+  1337 → Strapi CMS（含原生 Admin UI）
   3002 → NestJS 微服务（Austin 负责）
 ```
 

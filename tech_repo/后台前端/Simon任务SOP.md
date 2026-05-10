@@ -1,4 +1,7 @@
 # Simon 后台前端开发 SOP
+
+> **[已废弃]** admin-frontend 独立后台前端已于 2026-05 移除，改用 Strapi 原生 Admin UI（`http://localhost:1337/admin`）。本文档仅作历史存档。
+
 > 写给你的，用人话解释每一步怎么做。按顺序来，别跳。
 
 ---

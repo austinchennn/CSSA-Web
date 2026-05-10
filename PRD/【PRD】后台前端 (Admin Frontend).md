@@ -1,3 +1,7 @@
+> **[已废弃]** admin-frontend 独立后台前端已于 2026-05 移除，改用 Strapi 原生 Admin UI（`http://localhost:1337/admin`）进行内容管理。本文档仅作历史存档，不再维护。
+
+---
+
 ## 一、 定位与技术架构 (Architecture & Tech Stack)
 
 本后台应用作为独立的 Web App 部署，通过 API 与后端的 Strapi 及微服务交互。

@@ -138,7 +138,7 @@ export async function getDepartmentById(id: string): Promise<DepartmentDetail | 
 
 const MEMBERS_QUERY = `
   query {
-    members {
+    members(pagination: { limit: 200 }, sort: "order:asc") {
       data {
         id
         attributes {

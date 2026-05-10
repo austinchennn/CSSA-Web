@@ -14,7 +14,6 @@ CSSA-Web/
 │   ├── PRD-SUMMARY.md                 # PRD 总纲（架构、技术栈、数据库总览）
 │   ├── UTMCSSA官网完整技术文档（客户端+后台）.md
 │   ├── 客户端前端PRD.md
-│   ├── 后台前端 (Admin Frontend) PRD.md
 │   └── 后台后端以及数据库PRD.md
 │
 ├── client/                            # 客户端前端（面向公众用户）
@@ -24,23 +23,6 @@ CSSA-Web/
 │   ├── lib/                           # GraphQL 查询、类型定义
 │   ├── tailwind.config.ts
 │   ├── next.config.ts
-│   └── package.json
-│
-├── admin-frontend/                    # 后台前端（面向社团管理员）
-│   ├── README.md                      # 后台前端 PRD + 开发文档
-│   ├── app/
-│   │   ├── (admin)/                   # Admin SPA 布局
-│   │   │   ├── layout.tsx             # Sidebar + Header 布局
-│   │   │   ├── page.tsx               # 仪表盘首页
-│   │   │   ├── members/               # 成员管理
-│   │   │   ├── events/                # 活动管理 + 报名详情
-│   │   │   ├── config/                # 全站配置
-│   │   │   ├── departments/           # 部门管理
-│   │   │   ├── past-events/           # 往期活动图库
-│   │   │   └── sponsors/              # 赞助商管理
-│   │   └── login/
-│   ├── components/
-│   ├── lib/
 │   └── package.json
 │
 └── backend/                           # 后台后端（CMS + 微服务 + 数据库）
@@ -75,16 +57,6 @@ CSSA-Web/
 
 详见 [client/README.md](./client/README.md)
 
-### `admin-frontend/` — 后台前端
-
-面向社团管理员的内容运营后台（独立部署，不对外公开）。
-
-- **框架：** Next.js + TanStack Query + React Hook Form + Zod
-- **功能：** 仪表盘 / 成员管理 / 活动发布 / 报名审核 / 内容配置
-- **亮点：** 动态 Schema 构造器（可视化配置报名表单）、报名数据 CSV 导出
-
-详见 [admin-frontend/README.md](./admin-frontend/README.md)
-
 ### `backend/` — 后台后端
 
 数据与内容管理中心。
@@ -113,15 +85,12 @@ cd backend
 docker-compose up -d
 
 # 2. 启动 Strapi CMS（http://localhost:1337）
+# 后台管理直接访问 http://localhost:1337/admin
 cd backend/strapi
 npm install && npm run develop
 
 # 3. 启动客户端前端（http://localhost:3000）
 cd client
-npm install && npm run dev
-
-# 4. 启动后台前端（http://localhost:3001）
-cd admin-frontend
 npm install && npm run dev
 ```
 
@@ -132,7 +101,7 @@ npm install && npm run dev
 | 层级 | 技术 |
 |------|------|
 | 客户端前端 | Next.js · TypeScript · Tailwind CSS · shadcn/ui · Framer Motion |
-| 后台前端 | Next.js · TanStack Query · React Hook Form · Zod · TipTap |
+| 后台管理 | Strapi Admin UI（原生后台，无需额外开发） |
 | CMS | Strapi · PostgreSQL · GraphQL |
 | 微服务 | NestJS · BullMQ · Redis |
 | 部署 | Vercel (前端) · Docker (后端) |
@@ -154,6 +123,5 @@ npm install && npm run dev
 |------|------|
 | PRD 总纲 | [PRD/PRD-SUMMARY.md](./PRD/PRD-SUMMARY.md) |
 | 客户端前端 PRD + README | [client/README.md](./client/README.md) |
-| 后台前端 PRD + README | [admin-frontend/README.md](./admin-frontend/README.md) |
 | 后台后端 PRD + README | [backend/README.md](./backend/README.md) |
 | 完整技术规范原文 | [PRD/UTMCSSA官网完整技术文档（客户端+后台）.md](./PRD/UTMCSSA官网完整技术文档（客户端+后台）.md) |
