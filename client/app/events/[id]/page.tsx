@@ -63,8 +63,23 @@ export default async function EventDetailPage({
       </div>
 
       {event.description && (
-        <div className="prose prose-neutral dark:prose-invert max-w-none">
-          <ReactMarkdown>{event.description}</ReactMarkdown>
+        <div className="space-y-4 text-foreground leading-relaxed">
+          <ReactMarkdown
+            components={{
+              h1: ({ children }) => <h1 className="text-2xl font-bold mt-10 mb-3">{children}</h1>,
+              h2: ({ children }) => <h2 className="text-xl font-semibold mt-8 mb-3 text-foreground">{children}</h2>,
+              h3: ({ children }) => <h3 className="text-lg font-semibold mt-6 mb-2">{children}</h3>,
+              p:  ({ children }) => <p className="my-3 leading-7 text-foreground/90">{children}</p>,
+              ul: ({ children }) => <ul className="my-3 ml-5 space-y-1 list-disc text-foreground/90">{children}</ul>,
+              ol: ({ children }) => <ol className="my-3 ml-5 space-y-1 list-decimal text-foreground/90">{children}</ol>,
+              li: ({ children }) => <li className="leading-7">{children}</li>,
+              hr: () => <hr className="my-8 border-border" />,
+              strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+              em: ({ children }) => <em className="italic text-muted-foreground">{children}</em>,
+            }}
+          >
+            {event.description}
+          </ReactMarkdown>
         </div>
       )}
     </div>
