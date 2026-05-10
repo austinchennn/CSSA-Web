@@ -17,7 +17,7 @@ export default function DepartmentGroup({
   horizontal = false,
 }: DepartmentGroupProps) {
   return (
-    <AnimatedSection>
+    <AnimatedSection className={horizontal ? undefined : "h-full flex flex-col"}>
       {departmentId ? (
         <Link href={`/departments/${departmentId}`}>
           <h3 className="text-xl font-bold text-foreground mb-2 hover:text-primary transition-colors inline-block">
@@ -35,11 +35,11 @@ export default function DepartmentGroup({
         className={
           horizontal
             ? "flex gap-4"
-            : "grid grid-cols-1 gap-4"
+            : "flex flex-col flex-1 gap-4"
         }
       >
         {members.map((member) => (
-          <div key={member.id} className={horizontal ? "flex-1 flex" : undefined}>
+          <div key={member.id} className={horizontal ? "flex-1 flex" : "flex-1 flex"}>
             <MemberCard member={member} />
           </div>
         ))}

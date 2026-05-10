@@ -8,20 +8,20 @@ interface MemberCardProps {
 
 export default function MemberCard({ member }: MemberCardProps) {
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-all duration-200 hover:scale-[1.02] w-full">
+    <Card className="overflow-hidden hover:shadow-md transition-all duration-200 hover:scale-[1.02] w-full h-full">
       <div className="flex flex-col items-center p-6">
         {/* Photo */}
-        <div className="relative h-24 w-24 overflow-hidden rounded-full bg-muted">
+        <div className="relative h-36 w-36 overflow-hidden rounded-full bg-muted">
           {member.photoUrl ? (
             <Image
               src={member.photoUrl}
               alt={member.name}
               fill
               className="object-cover"
-              sizes="96px"
+              sizes="144px"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-muted-foreground">
+            <div className="flex h-full w-full items-center justify-center text-4xl font-bold text-muted-foreground">
               {member.name.charAt(0)}
             </div>
           )}
