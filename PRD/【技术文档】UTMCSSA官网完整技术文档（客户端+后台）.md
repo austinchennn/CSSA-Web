@@ -149,8 +149,8 @@
 |PostgreSQL|核心数据库|存储全站结构化数据与表单 JSON Schema。|
 |TypeScript|开发语言|保证服务端扩展逻辑的类型安全。|
 
-|NestJS / Fastify|逻辑微服务|承载复杂后置业务（如防刷、鉴权拦截等）。|
-|BullMQ + Redis|异步任务队列|削峰填谷，处理大批量导出或邮件发送等耗时任务。|
+|NestJS / Fastify|逻辑微服务|承载复杂后置业务（防刷限流、报名写入、CSV 同步导出）。|
+|Redis|限流缓存|Rate Limit Guard 通过 ioredis 直连，INCR + EXPIRE 实现滑动窗口限流。|
 
 ---
 
@@ -377,16 +377,23 @@ export default config
     
 - `main` 分支作为唯一的生产级代码来源。
     
-- 特性开发严格采用 `feature/{模块名称}` 分支模型。
-    
+- 特性开发严格采用 `feature/{模块名称}` 或 `feature-姓名-模块` 的分支模型。
 
-### 8.2 PR 与 Code Review
+- **文档更新机制：** 所有和文档相关的修改必须统一提交到 `docs` 分支（基于 `main`）。
 
-- 严禁本地直推 (Direct Push) `main` 分支。
+### 8.2 Git Commit 与 Pull Request 规范
+
+- 严禁本地直推 (Direct Push) `main` 或 `dev` 分支。
     
 - 必须通过 Pull Request (PR) 合并代码。
     
 - 核心业务模块合并前必须触发至少 1 次 Code Review，验证代码规范与构建状态。
+
+- **Commit Message 规范：** 建议参照 Conventional Commits 规范，采用 `<type>: <short summary>` 的格式。
+  - `type` 为英文，如：`feat` (新功能), `fix` (修bug), `refactor` (重构), `docs` (文档), `test` (测试), `chore` (杂项), `style` (格式)。
+  - `short summary` **必须使用中文**简短描述内容（如：`feat: 完成首页轮播图组件`）。
+
+- **Pull Request 规范：** 必须使用中文，描述区必须清晰写明**背景目的**、**修改内容**和**测试情况**。
     
 
 ### 8.3 模块化开发拆分原则

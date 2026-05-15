@@ -1,0 +1,9 @@
+node_modules/
+.tmp/
+.cache/
+.env
+exports/
+build/
+dist/
+*.log
+.DS_Store

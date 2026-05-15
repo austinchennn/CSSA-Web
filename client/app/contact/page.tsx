@@ -1,46 +1,88 @@
-/**
- * ============================================================
- * FILE: client/app/contact/page.tsx
- * ============================================================
- *
- * 【作用】
- * 联系我们页面（路由 `/contact`）。展示 UTMCSSA 官方联系方式，
- * 包括官方邮箱、社交媒体矩阵入口（Instagram / WeChat / LinkedIn 等）。
- * 若启用联系表单，表单提交必须调用后端真实 API，严禁纯前端静态处理。
- *
- * 【依赖关系】
- * Imports from:
- *   - lib/graphql/queries/siteConfig.queries.ts  : fetchContactInfo()
- *   - lib/types/cms.types.ts                     : ContactInfo 类型
- *   - lib/graphql/mutations/registration.mutations.ts : submitContactForm()（如启用）
- *   - components/shared/SectionHeader.tsx
- *   - components/shared/AnimatedSection.tsx
- *
- * 【导出 Metadata】
- * export const metadata: Metadata
- *   - title: "Contact Us"
- *
- * 【函数】
- * export default async function ContactPage(): Promise<JSX.Element>
- *   - 调用 fetchContactInfo() 获取邮箱、社交媒体链接等数据
- *   - 渲染区域：
- *       1. 页面标题与副文案
- *       2. 社交媒体卡片网格（每个卡片含平台图标、平台名、跳转链接）
- *       3. 官方邮箱展示（mailto: 链接）
- *       4. （可选）联系表单：包含 name / email / subject / message 字段
- *          表单提交通过 Server Action 或 API Route 调用后端，不允许纯前端处理
- *
- * 【联系表单 Server Action】（若启用）
- * async function handleContactSubmit(formData: FormData): Promise<void>
- *   - 验证 formData 中的必填字段
- *   - 调用后端 API（/api/contact）发送邮件或写入数据库
- *   - 返回成功/失败状态用于 UI 反馈
- *
- * 【ISR 配置】
- * export const revalidate = 600
- *
- * 【关键变量】
- * - contactInfo: ContactInfo — 邮箱、社交媒体链接数组等
- */
+import type { Metadata } from "next";
+import { getSiteConfig } from "@/lib/graphql";
+import SectionHeader from "@/components/shared/SectionHeader";
+import AnimatedSection from "@/components/shared/AnimatedSection";
+import { Mail, Instagram, MessageCircle, Linkedin } from "lucide-react";
 
-export {}
+export const metadata: Metadata = {
+  title: "Contact Us",
+};
+
+export const revalidate = 600;
+
+const iconMap: Record<string, React.ElementType> = {
+  instagram: Instagram,
+  "message-circle": MessageCircle,
+  wechat: MessageCircle,
+  linkedin: Linkedin,
+  mail: Mail,
+};
+
+export default async function ContactPage() {
+  const siteConfig = await getSiteConfig().catch(() => null);
+
+  const socialLinks = siteConfig?.social_links || [];
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <SectionHeader
+        title="联系我们"
+        subtitle="如有疑问或合作意向，请通过以下方式联系我们"
+      />
+
+      <div className="max-w-3xl mx-auto">
+        {/* Social media cards */}
+        {socialLinks.length > 0 && (
+          <AnimatedSection className="mb-12">
+            <h3 className="text-xl font-semibold text-foreground mb-6 text-center">
+              社交媒体
+            </h3>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+              {socialLinks.map((link) => {
+                const IconComp =
+                  iconMap[link.iconName?.toLowerCase() || ""] ||
+                  iconMap[link.platform.toLowerCase()] ||
+                  Mail;
+                return (
+                  <a
+                    key={link.platform}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 rounded-lg border border-border bg-card p-4 hover:shadow-md hover:border-primary/30 transition-all"
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <IconComp className="h-5 w-5" />
+                    </div>
+                    <span className="font-medium text-foreground">
+                      {link.platform}
+                    </span>
+                  </a>
+                );
+              })}
+            </div>
+          </AnimatedSection>
+        )}
+
+        {/* Email */}
+        <AnimatedSection className="text-center">
+          <div className="rounded-2xl bg-card border border-border p-8">
+            <Mail className="h-8 w-8 text-primary mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground">
+              通过邮件联系我们
+            </h3>
+            <p className="mt-2 text-muted-foreground text-sm">
+              如有问题或合作意向，欢迎发送邮件。
+            </p>
+            <a
+              href="mailto:utmcssa@gmail.com"
+              className="mt-4 inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              发送邮件
+            </a>
+          </div>
+        </AnimatedSection>
+      </div>
+    </div>
+  );
+}

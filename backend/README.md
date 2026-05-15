@@ -1,6 +1,130 @@
 # Backend — UTMCSSA 后台后端与数据库
 
-数据与内容管理中心，负责 API 接口生成、业务逻辑拦截、高并发处理及异步任务队列，为客户端前端和后台前端提供稳定的数据服务。
+数据与内容管理中心，负责 API 接口生成、业务逻辑拦截、高并发处理及异步任务队列，为客户端前端提供稳定的数据服务。
+
+---
+
+## 快速开始
+
+### 系统依赖（首次配置，只做一次）
+
+**1. 安装 Docker Desktop**
+
+下载地址：https://www.docker.com/products/docker-desktop/
+
+下载 Windows 版安装包 → 安装 → **重启电脑** → 打开 Docker Desktop 等左下角变绿。
+
+**2. 安装 nvm-windows + Node 20**
+
+打开 PowerShell（管理员），执行：
+
+```powershell
+winget install CoreyButler.NVMforWindows
+```
+
+安装完后**重新打开终端**，执行：
+
+```powershell
+nvm install 20
+nvm use 20
+node -v   # 应显示 v20.x.x
+```
+
+> ⚠️ Strapi 4 只支持 Node 18/20，Node 22+ 会启动报错。每次打开新终端都要执行 `nvm use 20`。
+
+**3. 安装依赖**
+
+```bash
+cd backend/strapi && npm install
+cd backend/microservice && npm install
+```
+
+**4. 配置环境变量**
+
+在 `backend/strapi/` 新建 `.env`：
+
+```env
+HOST=0.0.0.0
+PORT=1337
+APP_KEYS=your-key-1,your-key-2
+API_TOKEN_SALT=your-api-token-salt
+ADMIN_JWT_SECRET=your-admin-jwt-secret
+TRANSFER_TOKEN_SALT=your-transfer-token-salt
+JWT_SECRET=your-jwt-secret
+DATABASE_CLIENT=postgres
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_NAME=cssa_web_dev
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=postgres
+DATABASE_SSL=false
+```
+
+> 实际密钥值已通过微信群发送，请填入本地 `.env`，**不要提交到代码库**。
+
+在 `backend/microservice/` 新建 `.env`：
+
+```env
+PORT=3002
+NODE_ENV=development
+STRAPI_URL=http://localhost:1337
+STRAPI_API_TOKEN=（启动 Strapi 后从 Admin → Settings → API Tokens 获取）
+REDIS_HOST=localhost
+REDIS_PORT=6379
+CLIENT_URL=http://localhost:3000
+```
+
+---
+
+### 日常启动（每次开发，开三个终端）
+
+**终端 1 — 数据库**
+
+```bash
+cd backend
+docker-compose up -d
+docker-compose ps   # 两个容器都显示 healthy 才继续
+```
+
+**终端 2 — Strapi CMS**
+
+```bash
+nvm use 20
+cd backend/strapi
+npm run develop
+# 等出现 Server started at http://localhost:1337
+```
+
+首次启动需在 `http://localhost:1337/admin` 创建管理员账号，然后参考 `tech_repo/后端/Austin后续任务SOP.md` 完成权限配置和种子数据录入。
+
+**终端 3 — NestJS 微服务**
+
+```bash
+cd backend/microservice
+npm run start:dev
+# 等出现：微服务已启动，端口：3002
+```
+
+### 端口一览
+
+| 服务 | 地址 |
+|------|------|
+| Strapi Admin UI | http://localhost:1337/admin |
+| Strapi REST API | http://localhost:1337/api |
+| Strapi GraphQL | http://localhost:1337/graphql |
+| NestJS 微服务 | http://localhost:3002 |
+| PostgreSQL | localhost:5432 |
+| Redis | localhost:6379 |
+
+### 常见问题
+
+| 问题 | 解决方法 |
+|------|----------|
+| `node: command not found` 或版本不对 | 执行 `nvm use 20` |
+| Strapi 报数据库连接失败 | 先跑 `docker-compose up -d`，等 healthy |
+| 5432 端口被占用 | 打开服务管理器（services.msc），停止本地 PostgreSQL 服务 |
+| `docker-compose` 找不到命令 | 打开 Docker Desktop 等变绿再试 |
+| 微服务报 401 Unauthorized | `STRAPI_API_TOKEN` 填错或未填，重新从 Strapi Admin 获取 |
 
 ---
 
@@ -9,8 +133,8 @@
 ### 定位
 
 - **核心 CMS**：Strapi（Node.js）—— 提供数据建模与可视化后台，自动生成 RESTful / GraphQL API
-- **逻辑微服务**：NestJS / Fastify —— 承载复杂后置业务（防刷、鉴权拦截等）
-- **异步任务队列**：BullMQ + Redis —— 处理招新高峰期大批量报名入库、数据导出、邮件通知等耗时任务
+- **逻辑微服务**：NestJS / Fastify —— 承载复杂后置业务（Rate Limit 防刷、报名写入、CSV 同步导出）
+- **Redis**：Rate Limit Guard 通过 ioredis 直连，INCR + EXPIRE 实现滑动窗口限流
 - **数据统计引擎**：基于 `Registrations` 表，通过 SQL COUNT/聚合函数为管理层生成数据看板
 
 ### 业务数据流
@@ -127,9 +251,8 @@
 | Strapi | 4+ | Headless CMS，数据建模，自动生成 REST/GraphQL API |
 | PostgreSQL | 15+ | 核心数据库，存储所有结构化数据 |
 | TypeScript | 5+ | 服务端扩展逻辑类型安全 |
-| NestJS / Fastify | — | 逻辑微服务：Rate Limit、鉴权拦截等 |
-| BullMQ | — | 异步任务队列 |
-| Redis | 7+ | BullMQ 消息中间件 |
+| NestJS / Fastify | — | 逻辑微服务：Rate Limit、报名写入、CSV 导出 |
+| Redis | 7+ | Rate Limit Guard 限流缓存（ioredis 直连） |
 
 ---
 
@@ -159,11 +282,9 @@ backend/
 │   │   │   ├── registration.controller.ts
 │   │   │   ├── registration.service.ts
 │   │   │   └── rate-limit.guard.ts  # 表单防刷守卫
-│   │   ├── auth/
-│   │   │   └── auth.guard.ts        # 鉴权拦截
-│   │   └── queue/
-│   │       ├── queue.module.ts      # BullMQ 队列模块
-│   │       └── export.processor.ts  # CSV 导出异步处理器
+│   │   └── common/
+│   │       └── guards/
+│   │           └── rate-limit.guard.ts  # 防刷限流守卫
 │   └── package.json
 └── docker-compose.yml               # PostgreSQL + Redis 本地环境
 ```

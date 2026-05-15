@@ -6,13 +6,9 @@
     
 - **逻辑微服务**：NestJS / Fastify (采用 TypeScript 保证扩展逻辑的类型安全)。
     
-    - 承载复杂后置业务：由于 CMS 自带 API 较为底层，微服务层需负责如表单提交防刷（Rate Limit）、鉴权拦截等。
+    - 承载复杂后置业务：由于 CMS 自带 API 较为底层，微服务层需负责如表单提交防刷（Rate Limit）、报名写入、CSV 同步导出等。
         
-- **异步任务队列**：BullMQ + Redis。
-    
-    - 削峰填谷：在招新高峰期处理大量 Registrations 表单入库操作；
-        
-    - 处理耗时任务：如大批量的报名数据导出，或者自动化触发的邮件发送通知任务。
+- **Redis**：仅用于 Rate Limit Guard（ioredis 直连，INCR + EXPIRE 实现滑动窗口限流）。
         
 - **数据统计引擎**：基于收集入库的 `Registrations` (报名记录表)，后台可通过执行 SQL COUNT 及相关聚合函数，为管理层生成数据看板 (Dashboard)。
     

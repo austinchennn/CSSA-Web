@@ -1,0 +1,213 @@
+{
+  "main": {
+    "id": "e704800494a98b15",
+    "type": "split",
+    "children": [
+      {
+        "id": "fc295a8a517e9fe2",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2d2a9a9f33ee5c45",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "联调说明-Simon（后台管理前端）.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "联调说明-Simon（后台管理前端）"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "30dc9690e4b51e27",
+    "type": "split",
+    "children": [
+      {
+        "id": "b8f72b2a64df578b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "48e3213ae1054cc4",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "95741ed785b621ac",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "f72b1fabe3517524",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "0f5ac9646957219b",
+    "type": "split",
+    "children": [
+      {
+        "id": "f4bdc57e3716b036",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e68357b6af866a90",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "联调说明-Simon（后台管理前端）.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "联调说明-Simon（后台管理前端） 的反向链接列表"
+            }
+          },
+          {
+            "id": "6e7d8b96d7b9f964",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "联调说明-Simon（后台管理前端）.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "联调说明-Simon（后台管理前端） 的出链列表"
+            }
+          },
+          {
+            "id": "992c292dd381bc40",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "a6411b138793f0c4",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "8590cd6420f2f54f",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "联调说明-Simon（后台管理前端）.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "联调说明-Simon（后台管理前端） 的大纲"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false
+    }
+  },
+  "active": "2d2a9a9f33ee5c45",
+  "lastOpenFiles": [
+    "06-RateLimit.md",
+    "联调说明-Simon（后台管理前端）.pdf",
+    "联调说明-Emilia（客户端前台）.md",
+    "联调说明-Emilia（客户端前台）.pdf",
+    "联调说明-Simon（后台管理前端）.md",
+    "Conflict-Summary.md",
+    "后端接口文档.md",
+    "依赖以及后端使用说明.md",
+    "Mike任务SOP.pdf",
+    "Mike任务SOP.md",
+    "Austin后续任务SOP.md",
+    "11-GraphQL扩展.md",
+    "10-NestJS微服务初始化.md",
+    "09-环境变量配置.md",
+    "08-Strapi项目初始化.md",
+    "07-GraphQL扩展.md",
+    "06-RateLimit和队列.md",
+    "05-报名模块.md",
+    "04-NestJS入口.md",
+    "03-ContentType数据表.md",
+    "02-Strapi配置.md",
+    "01-Docker本地环境.md",
+    "后端完成工作安排.md",
+    "学术部介绍.pdf"
+  ]
+}

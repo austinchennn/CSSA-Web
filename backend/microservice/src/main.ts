@@ -15,10 +15,21 @@
  * Used by:
  *   - Node.js 进程入口，被 `npm run start:dev` 执行
  *
+ * 【Bootstrap 函数逻辑】
+ * async function bootstrap(): Promise<void>
+ *   - const app = await NestFactory.create(AppModule)
+ *   - 全局 ValidationPipe：自动校验请求体，不合规返回 400
+ *   - 全局 API 前缀：app.setGlobalPrefix('api/v1')（所有路由以 /api/v1 开头）
+ *   - CORS 配置：
+ *       origin: [process.env.CLIENT_URL, process.env.ADMIN_FRONTEND_URL]
+ *       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
+ *       credentials: true
+ *   - 端口：process.env.PORT || 3002（不与 Next.js 的 3000 和 Strapi 的 1337 冲突）
+ *   - await app.listen(port)
+ *
  * 【关键变量】
- * - port: number — process.env.PORT || 3002（不与 Next.js 3000/3001 冲突）
+ * - port: number — process.env.PORT || 3002
  */
-
 import { NestFactory } from '@nestjs/core'
 import { ValidationPipe } from '@nestjs/common'
 import { AppModule } from './app.module'

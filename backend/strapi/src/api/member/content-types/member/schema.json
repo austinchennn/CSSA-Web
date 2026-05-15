@@ -1,40 +1,14 @@
 {
-  "_comment": "Strapi Content Type Schema — Members (Collection Type)",
-  "_field_definitions": {
-    "kind": "collectionType",
-    "collectionName": "members",
-    "attributes": {
-      "name": { "type": "string", "required": true, "description": "成员姓名" },
-      "title": { "type": "string", "required": true, "description": "职位 Title，如'主席'、'市场部部长'" },
-      "photo": {
-        "type": "media",
-        "multiple": false,
-        "required": true,
-        "allowedTypes": ["images"],
-        "description": "成员展示图片（强制必填，统一风格照片）"
-      },
-      "order": { "type": "integer", "default": 0, "description": "排序权重，越大越靠前。同部门内按此字段倒序渲染" },
-      "department": {
-        "type": "relation",
-        "relation": "manyToOne",
-        "target": "api::department.department",
-        "inversedBy": "members",
-        "required": true,
-        "description": "外键，关联 Departments 表"
-      }
-    }
-  },
-
   "kind": "collectionType",
   "collectionName": "members",
   "info": {
     "singularName": "member",
     "pluralName": "members",
-    "displayName": "成员 Member",
-    "description": "社团管理层成员，按部门分组展示在前台 Team 页"
+    "displayName": "成员",
+    "description": "学生会各部门成员"
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "attributes": {
     "name": {
@@ -48,8 +22,14 @@
     "photo": {
       "type": "media",
       "multiple": false,
-      "required": true,
+      "required": false,
       "allowedTypes": ["images"]
+    },
+    "introduction": {
+      "type": "text"
+    },
+    "major": {
+      "type": "string"
     },
     "order": {
       "type": "integer",
