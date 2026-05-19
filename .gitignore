@@ -44,3 +44,7 @@ PRD/.obsidian/
 
 # Claude Code
 .claude/
+
+# 临时残留
+node_modules_old/
+**/node_modules_old/
