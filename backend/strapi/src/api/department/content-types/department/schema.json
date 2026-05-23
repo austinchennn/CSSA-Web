@@ -32,6 +32,11 @@
       "type": "text",
       "required": false
     },
+    "display_order": {
+      "type": "integer",
+      "default": 99,
+      "required": false
+    },
     "members": {
       "type": "relation",
       "relation": "oneToMany",

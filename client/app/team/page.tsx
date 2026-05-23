@@ -40,9 +40,12 @@ export default async function TeamPage() {
   const grouped = groupBy(filtered, (m) => m.department || "其他");
 
   const executiveMembers = grouped.get(EXECUTIVE_KEY) || [];
+  // 用 Strapi 的 display_order 排序，未设置的部门排末尾
+  const deptOrderMap = new Map(departments.map((d) => [d.name, d.displayOrder ?? 99]));
+
   const otherKeys = Array.from(grouped.keys())
     .filter((k) => k !== EXECUTIVE_KEY)
-    .sort((a, b) => a.localeCompare(b, "zh"));
+    .sort((a, b) => (deptOrderMap.get(a) ?? 99) - (deptOrderMap.get(b) ?? 99));
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">

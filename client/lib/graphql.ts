@@ -24,11 +24,12 @@ import type {
 
 const DEPARTMENTS_QUERY = `
   query {
-    departments {
+    departments(sort: "display_order:asc") {
       data {
         id
         attributes {
           name
+          display_order
         }
       }
     }
@@ -44,6 +45,7 @@ export async function getDepartments(): Promise<Department[]> {
     return (data.departments?.data || []).map((item) => ({
       id: item.id,
       name: item.attributes.name,
+      displayOrder: item.attributes.display_order ?? 99,
     }));
   } catch (error) {
     console.error("Failed to fetch departments:", error);

@@ -24,7 +24,7 @@ export default async function SponsorsPage() {
   }
 
   const tierLabels: Record<string, string> = {
-    gold: "金牌赞助",
+    gold: "年度赞助",
     silver: "银牌赞助",
     bronze: "铜牌赞助",
   };
@@ -64,6 +64,7 @@ export default async function SponsorsPage() {
                       logoUrl={sponsor.logoUrl}
                       websiteUrl={sponsor.websiteUrl}
                       description={sponsor.description}
+                      featured={tier === "gold"}
                     />
                   ))}
                 </div>
