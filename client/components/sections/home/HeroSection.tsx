@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-primary/5 to-background py-24 sm:py-32">
+    <section className="relative overflow-hidden bg-gradient-to-b from-primary/5 to-background pt-24 pb-8 sm:pt-32 sm:pb-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -22,6 +22,14 @@ export default function HeroSection() {
           className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto sm:text-xl"
         >
           多伦多大学密西沙加校区中国学生学者联合会
+        </motion.p>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.25 }}
+          className="mt-2 text-sm text-muted-foreground/70 max-w-2xl mx-auto sm:text-base"
+        >
+          University of Toronto Mississauga Chinese Students and Scholars Association
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}

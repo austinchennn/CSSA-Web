@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { NAV_LINKS } from "@/lib/constants/routes";
@@ -37,8 +38,17 @@ export default function Navbar() {
             {/* Logo */}
             <Link
               href="/"
-              className="text-xl font-bold text-primary hover:opacity-80 transition-opacity"
+              className="flex items-center gap-2 text-xl font-bold text-primary hover:opacity-80 transition-opacity"
+    
             >
+              <Image
+                src="/logo.png"
+                alt="UTMCSSA Logo"
+                width={40}
+                height={40}
+                className="h-10 w-auto"
+                priority
+              />
               UTMCSSA
             </Link>
 

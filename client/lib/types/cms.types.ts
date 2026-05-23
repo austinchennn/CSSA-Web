@@ -36,6 +36,7 @@ export interface StrapiSingleResponse<T> {
 export interface Department {
   id: string;
   name: string;
+  displayOrder?: number;
   leader_name?: string;
   leader_introduction?: string;
   introduction?: string;
@@ -54,6 +55,7 @@ export interface DepartmentDetail {
 
 export interface DepartmentAttributes {
   name: string;
+  display_order?: number;
   leader_name?: string;
   leader_introduction?: string;
   introduction?: string;

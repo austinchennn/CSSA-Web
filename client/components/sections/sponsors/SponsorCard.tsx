@@ -5,6 +5,7 @@ interface SponsorCardProps {
   logoUrl: string | null;
   websiteUrl?: string;
   description?: string;
+  featured?: boolean;
 }
 
 export default function SponsorCard({
@@ -12,17 +13,18 @@ export default function SponsorCard({
   logoUrl,
   websiteUrl,
   description,
+  featured = false,
 }: SponsorCardProps) {
   const content = (
-    <div className="flex flex-col items-center p-6 rounded-lg border border-border bg-card hover:shadow-md transition-shadow">
+    <div className={`flex flex-col items-center rounded-lg border border-border bg-card hover:shadow-md transition-shadow ${featured ? "p-8" : "p-6"}`}>
       {logoUrl ? (
         <img
           src={logoUrl}
           alt={name}
-          className="h-16 w-auto object-contain"
+          className={`w-auto object-contain ${featured ? "h-28" : "h-16"}`}
         />
       ) : (
-        <div className="h-16 flex items-center justify-center text-lg font-semibold text-muted-foreground">
+        <div className={`flex items-center justify-center font-semibold text-muted-foreground ${featured ? "h-28 text-xl" : "h-16 text-lg"}`}>
           {name}
         </div>
       )}
