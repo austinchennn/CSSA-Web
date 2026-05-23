@@ -12,11 +12,12 @@ interface SponsorAttributes {
   website_url?: string;
   tier: "gold" | "silver" | "bronze";
   description?: string;
+  display_order?: number;
 }
 
 const SPONSORS_QUERY = `
   query {
-    sponsors(sort: ["tier:asc", "display_order:asc"]) {
+    sponsors(sort: "display_order:asc") {
       data {
         id
         attributes {
