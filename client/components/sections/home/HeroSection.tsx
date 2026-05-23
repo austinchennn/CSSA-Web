@@ -23,6 +23,14 @@ export default function HeroSection() {
         >
           多伦多大学密西沙加校区中国学生学者联合会
         </motion.p>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.25 }}
+          className="mt-2 text-sm text-muted-foreground/70 max-w-2xl mx-auto sm:text-base"
+        >
+          University of Toronto Mississauga Chinese Students and Scholars Association
+        </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

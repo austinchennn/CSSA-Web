@@ -16,7 +16,7 @@ interface SponsorAttributes {
 
 const SPONSORS_QUERY = `
   query {
-    sponsors {
+    sponsors(sort: ["tier:asc", "display_order:asc"]) {
       data {
         id
         attributes {
@@ -31,6 +31,7 @@ const SPONSORS_QUERY = `
           website_url
           tier
           description
+          display_order
         }
       }
     }
