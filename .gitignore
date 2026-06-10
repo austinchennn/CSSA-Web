@@ -26,7 +26,8 @@ dist/
 # Strapi
 .strapi/
 backend/strapi/.tmp/
-backend/strapi/public/uploads/
+backend/strapi/public/uploads/*
+!backend/strapi/public/uploads/.gitkeep
 backend/strapi/build/
 
 # Logs

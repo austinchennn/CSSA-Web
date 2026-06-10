@@ -7,4 +7,5 @@ build/
 dist/
 *.log
 .DS_Store
-public/uploads/
+public/uploads/*
+!public/uploads/.gitkeep
