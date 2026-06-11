@@ -6,7 +6,7 @@ export default ({ env }) => ({
   },
   transfer: {
     remote: {
-      enabled: true,
+      enabled: env.bool('STRAPI_REMOTE_TRANSFER_ENABLED', false),
     },
   },
 })
