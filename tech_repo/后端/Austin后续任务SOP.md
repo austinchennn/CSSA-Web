@@ -256,7 +256,7 @@ http://localhost:1337/api/registrations
 | 字段 | 内容 |
 |------|------|
 | Hero title | 欢迎来到 UTMCSSA |
-| Hero subtitle | 多伦多大学密西沙加校区中国学生学者联合会 |
+| Hero subtitle | 多伦多大学密西沙加校区中国学生学者联谊会 |
 | Contact email | utmcssa@gmail.com |
 | Instagram url | https://instagram.com/utmcssa |
 

@@ -28,12 +28,22 @@ export default ({ env }: any) => ({
     },
   },
 
-  // 文件上传插件：成员头像、活动封面图上传
+  // 文件上传插件：成员头像、活动封面图上传，使用 Cloudinary 云存储持久化
   upload: {
     enabled: true,
     config: {
-      sizeLimit: 10 * 1024 * 1024,     // 单文件限制 10MB
-      provider: 'local',               // 开发环境存本地；生产环境改为 S3/Cloudinary
+      sizeLimit: 10 * 1024 * 1024,
+      provider: '@strapi/provider-upload-cloudinary',
+      providerOptions: {
+        cloud_name: env('CLOUDINARY_NAME'),
+        api_key: env('CLOUDINARY_KEY'),
+        api_secret: env('CLOUDINARY_SECRET'),
+      },
+      actionOptions: {
+        upload: {},
+        uploadStream: {},
+        delete: {},
+      },
     },
   },
 

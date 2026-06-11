@@ -14,7 +14,7 @@ export default function Footer() {
               UTMCSSA
             </Link>
             <p className="mt-3 text-sm text-muted-foreground">
-              多伦多大学密西沙加校区中国学生学者联合会
+              多伦多大学密西沙加校区中国学生学者联谊会
             </p>
           </div>
 

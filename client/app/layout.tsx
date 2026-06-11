@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     default: "UTMCSSA — 多伦多大学密西沙加中国学生学者联合会",
   },
   description:
-    "多伦多大学密西沙加校区中国学生学者联合会官方网站。了解我们的活动、团队和服务。",
+    "多伦多大学密西沙加校区中国学生学者联谊会官方网站。了解我们的活动、团队和服务。",
 };
 
 export default function RootLayout({

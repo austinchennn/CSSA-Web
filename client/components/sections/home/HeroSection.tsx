@@ -21,7 +21,7 @@ export default function HeroSection() {
           transition={{ duration: 0.6, delay: 0.15 }}
           className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto sm:text-xl"
         >
-          多伦多大学密西沙加校区中国学生学者联合会
+          多伦多大学密西沙加校区中国学生学者联谊会
         </motion.p>
         <motion.p
           initial={{ opacity: 0, y: 20 }}

@@ -38,7 +38,7 @@ export default async function AboutPage() {
 
   const aboutDescription =
     siteConfig?.about_description ||
-    "多伦多大学密西沙加校区中国学生学者联合会（UTMCSSA）致力于为中国留学生提供全方位的支持和服务，帮助大家更好地适应海外学习生活。";
+    "多伦多大学密西沙加校区中国学生学者联谊会（UTMCSSA）致力于为中国留学生提供全方位的支持和服务，帮助大家更好地适应海外学习生活。";
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
