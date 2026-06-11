@@ -6,7 +6,7 @@ export default ({ env }) => ({
   },
   transfer: {
     remote: {
-      enabled: true,
+      enabled: false,
     },
   },
 })
