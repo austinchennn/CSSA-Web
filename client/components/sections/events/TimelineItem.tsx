@@ -38,11 +38,6 @@ export default function TimelineItem({ event, isRight }: TimelineItemProps) {
             <p className="mt-1 text-sm text-muted-foreground">
               {formatEventDate(event.date)}
             </p>
-            {event.description && (
-              <p className="mt-2 text-sm text-muted-foreground line-clamp-3">
-                {event.description}
-              </p>
-            )}
           </div>
         </Link>
       </div>
