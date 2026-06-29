@@ -17,7 +17,7 @@ export default async function DepartmentsPage() {
         <p className="text-center text-muted-foreground py-12">暂无部门信息。</p>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-4">
-          {departments.map((dept) => (
+          {departments.filter((dept) => dept.name !== "主席团").map((dept) => (
             <Link
               key={dept.id}
               href={`/departments/${dept.id}`}
