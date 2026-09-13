@@ -39,9 +39,12 @@ export default ({ env }: any) => ({
         api_key: env('CLOUDINARY_KEY'),
         api_secret: env('CLOUDINARY_SECRET'),
       },
+      // 之前没有 folder 时，插件按 file.path 决定 Cloudinary 目录（要求先在 Strapi 媒体库里手动建
+      // 文件夹），我们没用这个功能，所有上传都落在账号根目录、以随机 hash 命名。这里固定指定 folder，
+      // 让以后的新上传统一收进 cssa-web/ 下；已经上传的旧资源不受影响，继续用原来的 URL，不需要迁移。
       actionOptions: {
-        upload: {},
-        uploadStream: {},
+        upload: { folder: 'cssa-web' },
+        uploadStream: { folder: 'cssa-web' },
         delete: {},
       },
     },
